@@ -2,7 +2,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { useCart } from '../contexts/cart-context';
-import { ShoppingCart } from 'lucide-react';
+import { ShoppingCart, Lock } from 'lucide-react';
 import { Button } from './ui/button';
 import { Badge } from './ui/badge';
 
@@ -39,6 +39,11 @@ const Navbar = () => {
         </nav>
         
         <div className="flex items-center gap-4">
+          <Link to="/admin/login">
+            <Button variant="outline" size="icon">
+              <Lock className="h-5 w-5" />
+            </Button>
+          </Link>
           <Link to="/cart">
             <Button variant="outline" size="icon" className="relative">
               <ShoppingCart className="h-5 w-5" />

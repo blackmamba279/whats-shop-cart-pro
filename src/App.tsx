@@ -14,6 +14,13 @@ import ProductDetail from "./pages/ProductDetail";
 import Cart from "./pages/Cart";
 import NotFound from "./pages/NotFound";
 
+// Admin pages
+import AdminLogin from "./pages/AdminLogin";
+import AdminLayout from "./components/AdminLayout";
+import AdminProducts from "./pages/AdminProducts";
+import AdminCategories from "./pages/AdminCategories";
+import AdminRoute from "./components/AdminRoute";
+
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -32,6 +39,17 @@ const App = () => (
               <Route path="category/:categoryId" element={<CategoryProducts />} />
               <Route path="cart" element={<Cart />} />
               <Route path="*" element={<NotFound />} />
+            </Route>
+            
+            {/* Admin Routes */}
+            <Route path="/admin/login" element={<AdminLogin />} />
+            <Route path="/admin" element={
+              <AdminRoute>
+                <AdminLayout />
+              </AdminRoute>
+            }>
+              <Route path="products" element={<AdminProducts />} />
+              <Route path="categories" element={<AdminCategories />} />
             </Route>
           </Routes>
         </BrowserRouter>
