@@ -16,14 +16,24 @@ const WhatsAppContact: React.FC<WhatsAppContactProps> = ({
   className = '',
   children
 }) => {
-  // In a real app, this would be a configuration or seller-specific number
-  const phoneNumber = '1234567890';
+  // Get phone number from localStorage or use default
+  const phoneNumber = localStorage.getItem('waPhoneNumber') || '1234567890';
   
   const handleWhatsAppClick = () => {
-    let message = 'Hello! I am interested in your products.';
+    let message;
     
     if (product) {
-      message = `Hello! I am interested in ${product.name} priced at $${product.price}.`;
+      // Use product message template if available
+      const template = localStorage.getItem('waProductMessageTemplate') || 
+        'Hello! I am interested in {productName} priced at ${productPrice}.';
+      
+      message = template
+        .replace('{productName}', product.name)
+        .replace('{productPrice}', product.price.toString());
+    } else {
+      // Use default message if no product
+      message = localStorage.getItem('waDefaultMessage') || 
+        'Hello! I am interested in your products.';
     }
     
     // Encode the message for URL
