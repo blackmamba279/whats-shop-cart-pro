@@ -1,13 +1,13 @@
 
-import React, { useState } from 'react';
-import { Product, products as initialProducts, getProductById } from '../data/products';
+import React, { useState, useRef } from 'react';
+import { Product, products as initialProducts } from '../data/products';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Plus, Edit, Trash, Search } from 'lucide-react';
+import { Plus, Edit, Trash, Search, Upload } from 'lucide-react';
 import { toast } from 'sonner';
 
 const AdminProducts = () => {
@@ -17,6 +17,7 @@ const AdminProducts = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [currentProduct, setCurrentProduct] = useState<Product | null>(null);
   const [editMode, setEditMode] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Form state
   const [formData, setFormData] = useState<Partial<Product>>({
@@ -30,6 +31,7 @@ const AdminProducts = () => {
     featured: false,
     rating: 0
   });
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target;
@@ -42,6 +44,25 @@ const AdminProducts = () => {
     } else {
       setFormData({ ...formData, [name]: value });
     }
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    
+    // Create a local URL for the image preview
+    const imageUrl = URL.createObjectURL(file);
+    setImagePreview(imageUrl);
+    
+    // In a real application, you would upload this file to a server
+    // For now, we'll just use the local URL
+    setFormData({ ...formData, image: imageUrl });
+    
+    toast.info("Image selected. It will be saved when you submit the form.");
+  };
+
+  const triggerFileInput = () => {
+    fileInputRef.current?.click();
   };
 
   const filteredProducts = products.filter(product => 
@@ -64,12 +85,14 @@ const AdminProducts = () => {
     });
     setCurrentProduct(null);
     setEditMode(false);
+    setImagePreview(null);
   };
 
   const handleOpenDialog = (product?: Product) => {
     if (product) {
       setCurrentProduct(product);
       setFormData({ ...product });
+      setImagePreview(product.image);
       setEditMode(true);
     } else {
       resetForm();
@@ -310,14 +333,37 @@ const AdminProducts = () => {
             </div>
             
             <div className="space-y-2">
-              <label htmlFor="image" className="text-sm font-medium">Image URL</label>
-              <Input
-                id="image"
-                name="image"
-                type="text"
-                value={formData.image}
-                onChange={handleInputChange}
-              />
+              <label className="text-sm font-medium">Product Image</label>
+              <div className="flex items-center gap-4">
+                <div className="w-24 h-24 border rounded-md overflow-hidden bg-gray-50 flex items-center justify-center">
+                  {imagePreview ? (
+                    <img 
+                      src={imagePreview} 
+                      alt="Product preview" 
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className="text-gray-400 text-xs text-center">No image</div>
+                  )}
+                </div>
+                <div>
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={handleFileChange}
+                  />
+                  <Button 
+                    type="button" 
+                    variant="outline" 
+                    onClick={triggerFileInput}
+                  >
+                    <Upload className="mr-2 h-4 w-4" />
+                    Upload Image
+                  </Button>
+                </div>
+              </div>
             </div>
 
             <div className="grid grid-cols-2 gap-4">

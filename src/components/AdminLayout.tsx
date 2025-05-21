@@ -3,7 +3,7 @@ import React from 'react';
 import { Link, Outlet, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
-import { LogOut, Package, FolderOpen } from 'lucide-react';
+import { LogOut, Package, FolderOpen, ArrowLeft } from 'lucide-react';
 
 const AdminLayout = () => {
   const navigate = useNavigate();
@@ -19,9 +19,16 @@ const AdminLayout = () => {
       <header className="bg-whatsapp text-white shadow-md py-4">
         <div className="container flex justify-between items-center">
           <h1 className="text-xl font-bold">WA Shop Admin</h1>
-          <Button variant="ghost" onClick={handleLogout} className="text-white hover:text-white/80">
-            <LogOut className="mr-2 h-4 w-4" /> Logout
-          </Button>
+          <div className="flex items-center gap-2">
+            <Link to="/products">
+              <Button variant="ghost" className="text-white hover:text-white/80">
+                <ArrowLeft className="mr-2 h-4 w-4" /> Back to Shop
+              </Button>
+            </Link>
+            <Button variant="ghost" onClick={handleLogout} className="text-white hover:text-white/80">
+              <LogOut className="mr-2 h-4 w-4" /> Logout
+            </Button>
+          </div>
         </div>
       </header>
       
