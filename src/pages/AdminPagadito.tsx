@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
@@ -22,6 +21,15 @@ const pagaditoFormSchema = z.object({
 
 type PagaditoFormValues = z.infer<typeof pagaditoFormSchema>;
 
+interface PaymentSettingsType {
+  id: string;
+  provider: string;
+  settings: string;
+  webhook_key: string | null;
+  created_at: string | null;
+  updated_at: string | null;
+}
+
 const AdminPagadito = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [settings, setSettings] = useState<PagaditoFormValues | null>(null);
@@ -43,23 +51,24 @@ const AdminPagadito = () => {
     const fetchSettings = async () => {
       setIsLoading(true);
       try {
+        // Use any() to bypass the type checking until the database schema is updated in types.ts
         const { data, error } = await supabase
           .from('payment_settings')
           .select('*')
           .eq('provider', 'pagadito')
-          .single();
+          .maybeSingle() as { data: PaymentSettingsType | null, error: any };
 
         if (error) {
           console.error('Error fetching Pagadito settings:', error);
         } else if (data) {
-          const settings = JSON.parse(data.settings);
-          setSettings(settings);
+          const parsedSettings = JSON.parse(data.settings as string);
+          setSettings(parsedSettings);
           form.reset({
-            uid: settings.uid || '',
-            wsk: settings.wsk || '',
-            sandbox: settings.sandbox !== undefined ? settings.sandbox : true,
-            return_url: settings.return_url || `${window.location.origin}/order-success`,
-            webhook_url: settings.webhook_url || `${window.location.origin}/api/webhooks/pagadito`,
+            uid: parsedSettings.uid || '',
+            wsk: parsedSettings.wsk || '',
+            sandbox: parsedSettings.sandbox !== undefined ? parsedSettings.sandbox : true,
+            return_url: parsedSettings.return_url || `${window.location.origin}/order-success`,
+            webhook_url: parsedSettings.webhook_url || `${window.location.origin}/api/webhooks/pagadito`,
           });
           
           if (data.webhook_key) {
@@ -79,6 +88,7 @@ const AdminPagadito = () => {
   const onSubmit = async (values: PagaditoFormValues) => {
     setIsLoading(true);
     try {
+      // Use any() to bypass type checking
       const { error } = await supabase
         .from('payment_settings')
         .upsert({
@@ -86,7 +96,7 @@ const AdminPagadito = () => {
           settings: JSON.stringify(values),
           webhook_key: webhookKey,
           updated_at: new Date().toISOString(),
-        }, {
+        } as any, {
           onConflict: 'provider'
         });
 
@@ -124,7 +134,7 @@ const AdminPagadito = () => {
           webhook_key: newKey,
           settings: JSON.stringify(form.getValues()),
           updated_at: new Date().toISOString(),
-        }, {
+        } as any, {
           onConflict: 'provider'
         });
 

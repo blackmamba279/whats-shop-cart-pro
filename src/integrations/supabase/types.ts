@@ -126,6 +126,33 @@ export type Database = {
         }
         Relationships: []
       }
+      payment_settings: {
+        Row: {
+          created_at: string | null
+          id: string
+          provider: string
+          settings: Json
+          updated_at: string | null
+          webhook_key: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          provider: string
+          settings?: Json
+          updated_at?: string | null
+          webhook_key?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          provider?: string
+          settings?: Json
+          updated_at?: string | null
+          webhook_key?: string | null
+        }
+        Relationships: []
+      }
       products: {
         Row: {
           category_id: string | null

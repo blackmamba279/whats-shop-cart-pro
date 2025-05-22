@@ -1,4 +1,3 @@
-
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -27,6 +26,15 @@ export interface PagaditoSettings {
   webhook_url?: string;
 }
 
+interface PaymentSettingsType {
+  id: string;
+  provider: string;
+  settings: string; 
+  webhook_key: string | null;
+  created_at: string | null;
+  updated_at: string | null;
+}
+
 class PagaditoService {
   private UID: string = '';
   private WSK: string = '';
@@ -47,11 +55,12 @@ class PagaditoService {
    */
   private async initializeSettings() {
     try {
+      // Use any() to bypass type checking until the database schema is updated in types.ts
       const { data, error } = await supabase
         .from('payment_settings')
         .select('*')
         .eq('provider', 'pagadito')
-        .single();
+        .maybeSingle() as { data: PaymentSettingsType | null, error: any };
 
       if (error) {
         console.error('Error loading Pagadito settings:', error);
