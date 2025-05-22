@@ -22,6 +22,7 @@ import AdminLayout from "./components/AdminLayout";
 import AdminProducts from "./pages/AdminProducts";
 import AdminCategories from "./pages/AdminCategories";
 import AdminWhatsApp from "./pages/AdminWhatsApp";
+import AdminPagadito from "./pages/AdminPagadito";
 import AdminRoute from "./components/AdminRoute";
 
 const queryClient = new QueryClient();
@@ -55,6 +56,7 @@ function App() {
                 <Route path="products" element={<AdminProducts />} />
                 <Route path="categories" element={<AdminCategories />} />
                 <Route path="whatsapp" element={<AdminWhatsApp />} />
+                <Route path="pagadito" element={<AdminPagadito />} />
               </Route>
             </Routes>
             <Toaster />

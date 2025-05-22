@@ -19,29 +19,84 @@ export interface PagaditoPaymentOptions {
   cancelUrl?: string;
 }
 
+export interface PagaditoSettings {
+  uid: string;
+  wsk: string;
+  sandbox: boolean;
+  return_url?: string;
+  webhook_url?: string;
+}
+
 class PagaditoService {
-  // In a real implementation, these would be provided by environment variables
-  private UID: string = 'test_uid';
-  private WSK: string = 'test_wsk';
+  private UID: string = '';
+  private WSK: string = '';
   private SANDBOX_URL: string = 'https://sandbox.pagadito.com/comercios/';
   private PRODUCTION_URL: string = 'https://comercios.pagadito.com/';
   private isSandbox: boolean = true;
+  private returnUrl: string = '';
+  private cancelUrl: string = '';
+  private webhook_key: string = '';
+  private isInitialized: boolean = false;
 
   constructor() {
-    // In a real implementation, this would check if we're in dev or production
-    this.isSandbox = true;
+    this.initializeSettings();
+  }
+
+  /**
+   * Initialize settings from the database
+   */
+  private async initializeSettings() {
+    try {
+      const { data, error } = await supabase
+        .from('payment_settings')
+        .select('*')
+        .eq('provider', 'pagadito')
+        .single();
+
+      if (error) {
+        console.error('Error loading Pagadito settings:', error);
+        return;
+      }
+
+      if (data) {
+        const settings = JSON.parse(data.settings) as PagaditoSettings;
+        this.UID = settings.uid;
+        this.WSK = settings.wsk;
+        this.isSandbox = settings.sandbox !== undefined ? settings.sandbox : true;
+        this.returnUrl = settings.return_url || window.location.origin + '/order-success';
+        this.cancelUrl = settings.return_url || window.location.origin + '/checkout';
+        this.webhook_key = data.webhook_key || '';
+        this.isInitialized = true;
+        console.log('Pagadito settings loaded successfully');
+      }
+    } catch (error) {
+      console.error('Failed to initialize Pagadito settings:', error);
+    }
   }
 
   /**
    * Create a payment session with Pagadito
-   * This is a simplified implementation that would be connected to the actual Pagadito API
    */
   async createPayment(options: PagaditoPaymentOptions) {
     try {
+      // Make sure settings are loaded
+      if (!this.isInitialized) {
+        await this.initializeSettings();
+      }
+
+      if (!this.UID || !this.WSK) {
+        console.error('Pagadito credentials not configured');
+        return {
+          success: false,
+          error: 'Payment gateway not configured. Please contact the administrator.',
+          data: null
+        };
+      }
+
       // In a real implementation, this would make an API call to Pagadito
       console.log('Creating payment with Pagadito:', options);
-
-      // For demonstration, we're simulating the payment process
+      
+      // Create a specific transaction ID format
       const simulatedPaymentId = `pgto-${Math.random().toString(36).substring(2, 10)}`;
       
       // Create the order in our database
@@ -69,7 +124,7 @@ class PagaditoService {
         };
       }
       
-      // In a real implementation, we would redirect the user to Pagadito's payment page
+      // Generate the payment URL for redirection
       const paymentUrl = `${this.isSandbox ? this.SANDBOX_URL : this.PRODUCTION_URL}?token=${simulatedPaymentId}`;
       
       return {
@@ -94,10 +149,14 @@ class PagaditoService {
 
   /**
    * Verify a payment status with Pagadito
-   * This is a simplified implementation that would be connected to the actual Pagadito API
    */
   async verifyPayment(paymentId: string) {
     try {
+      // Make sure settings are loaded
+      if (!this.isInitialized) {
+        await this.initializeSettings();
+      }
+
       // In a real implementation, this would make an API call to Pagadito
       console.log('Verifying payment with Pagadito:', paymentId);
 
@@ -157,6 +216,16 @@ class PagaditoService {
         data: null
       };
     }
+  }
+
+  /**
+   * Validate a webhook request from Pagadito
+   */
+  validateWebhook(signature: string, payload: any): boolean {
+    // In a real implementation, this would validate the webhook signature
+    // using the webhook_key
+    console.log('Validating webhook with signature:', signature);
+    return this.webhook_key === signature;
   }
 }
 

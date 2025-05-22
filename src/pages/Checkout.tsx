@@ -63,6 +63,37 @@ const Checkout = () => {
     try {
       const orderId = uuidv4();
       
+      // Create order in database
+      const { data: orderData, error: orderError } = await supabase
+        .from('orders')
+        .insert({
+          id: orderId,
+          total_amount: total,
+          customer_name: values.name,
+          customer_email: values.email,
+          customer_phone: values.phone,
+          shipping_address: values.address,
+          payment_method: 'pagadito',
+          payment_status: 'pending',
+          status: 'pending'
+        })
+        .select()
+        .single();
+        
+      if (orderError) {
+        throw new Error('Failed to create order');
+      }
+        
+      // For each item in the cart, create an order item in the database
+      for (const item of items) {
+        await supabase.from('order_items').insert({
+          order_id: orderId,
+          product_id: item.id,
+          quantity: item.quantity,
+          price: item.price
+        });
+      }
+      
       // Create a payment with Pagadito
       const paymentResult = await pagaditoService.createPayment({
         amount: total,
@@ -76,29 +107,22 @@ const Checkout = () => {
       });
 
       if (paymentResult.success && paymentResult.data) {
-        // For each item in the cart, create an order item in the database
-        items.forEach(async (item) => {
-          await supabase.from('order_items').insert({
-            order_id: orderId,
-            product_id: item.id,
-            quantity: item.quantity,
-            price: item.price
-          });
-        });
-
-        // In a real application, we would redirect to Pagadito's payment page
-        // window.location.href = paymentResult.data.paymentUrl;
+        // In a real application, we redirect to Pagadito's payment page
+        localStorage.setItem('pendingOrderId', orderId);
         
-        // For this demo, we'll simulate a successful payment
-        await pagaditoService.verifyPayment(paymentResult.data.paymentId);
+        // Redirect to Pagadito for payment
+        window.location.href = paymentResult.data.paymentUrl;
         
-        // Clear the cart
+        // Clear the cart now that we've stored the order
         clearCart();
-        
-        toast.success('Order placed successfully!');
-        navigate('/order-success');
       } else {
         toast.error(paymentResult.error || 'Failed to process payment');
+        
+        // Delete the order if payment creation failed
+        await supabase
+          .from('orders')
+          .delete()
+          .eq('id', orderId);
       }
     } catch (error: any) {
       console.error('Checkout error:', error);

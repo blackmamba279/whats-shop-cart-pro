@@ -3,7 +3,7 @@ import React from 'react';
 import { Link, Outlet, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
-import { LogOut, Package, FolderOpen, ArrowLeft, MessageSquare } from 'lucide-react';
+import { LogOut, Package, FolderOpen, ArrowLeft, MessageSquare, CreditCard } from 'lucide-react';
 
 const AdminLayout = () => {
   const navigate = useNavigate();
@@ -51,6 +51,12 @@ const AdminLayout = () => {
               <Button variant="ghost" className="w-full justify-start">
                 <MessageSquare className="mr-2 h-4 w-4" />
                 WhatsApp Settings
+              </Button>
+            </Link>
+            <Link to="/admin/pagadito">
+              <Button variant="ghost" className="w-full justify-start">
+                <CreditCard className="mr-2 h-4 w-4" />
+                Pagadito Payments
               </Button>
             </Link>
           </nav>
