@@ -26,42 +26,44 @@ import AdminRoute from "./components/AdminRoute";
 
 const queryClient = new QueryClient();
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
+function App() {
+  return (
+    <QueryClientProvider client={queryClient}>
       <CartProvider>
-        <Toaster />
-        <Sonner />
         <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<Layout />}>
-              <Route index element={<Index />} />
-              <Route path="products" element={<Products />} />
-              <Route path="product/:productId" element={<ProductDetail />} />
-              <Route path="categories" element={<Categories />} />
-              <Route path="category/:categoryId" element={<CategoryProducts />} />
-              <Route path="cart" element={<Cart />} />
-              <Route path="checkout" element={<Checkout />} />
-              <Route path="order-success" element={<OrderSuccess />} />
-              <Route path="*" element={<NotFound />} />
-            </Route>
-            
-            {/* Admin Routes */}
-            <Route path="/admin/login" element={<AdminLogin />} />
-            <Route path="/admin" element={
-              <AdminRoute>
-                <AdminLayout />
-              </AdminRoute>
-            }>
-              <Route path="products" element={<AdminProducts />} />
-              <Route path="categories" element={<AdminCategories />} />
-              <Route path="whatsapp" element={<AdminWhatsApp />} />
-            </Route>
-          </Routes>
+          <TooltipProvider>
+            <Routes>
+              <Route path="/" element={<Layout />}>
+                <Route index element={<Index />} />
+                <Route path="products" element={<Products />} />
+                <Route path="product/:productId" element={<ProductDetail />} />
+                <Route path="categories" element={<Categories />} />
+                <Route path="category/:categoryId" element={<CategoryProducts />} />
+                <Route path="cart" element={<Cart />} />
+                <Route path="checkout" element={<Checkout />} />
+                <Route path="order-success" element={<OrderSuccess />} />
+                <Route path="*" element={<NotFound />} />
+              </Route>
+              
+              {/* Admin Routes */}
+              <Route path="/admin/login" element={<AdminLogin />} />
+              <Route path="/admin" element={
+                <AdminRoute>
+                  <AdminLayout />
+                </AdminRoute>
+              }>
+                <Route path="products" element={<AdminProducts />} />
+                <Route path="categories" element={<AdminCategories />} />
+                <Route path="whatsapp" element={<AdminWhatsApp />} />
+              </Route>
+            </Routes>
+            <Toaster />
+            <Sonner />
+          </TooltipProvider>
         </BrowserRouter>
       </CartProvider>
-    </TooltipProvider>
-  </QueryClientProvider>
-);
+    </QueryClientProvider>
+  );
+}
 
 export default App;
