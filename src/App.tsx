@@ -12,6 +12,8 @@ import Categories from "./pages/Categories";
 import CategoryProducts from "./pages/CategoryProducts";
 import ProductDetail from "./pages/ProductDetail";
 import Cart from "./pages/Cart";
+import Checkout from "./pages/Checkout";
+import OrderSuccess from "./pages/OrderSuccess";
 import NotFound from "./pages/NotFound";
 
 // Admin pages
@@ -39,6 +41,8 @@ const App = () => (
               <Route path="categories" element={<Categories />} />
               <Route path="category/:categoryId" element={<CategoryProducts />} />
               <Route path="cart" element={<Cart />} />
+              <Route path="checkout" element={<Checkout />} />
+              <Route path="order-success" element={<OrderSuccess />} />
               <Route path="*" element={<NotFound />} />
             </Route>
             
