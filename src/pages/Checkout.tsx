@@ -20,6 +20,7 @@ import { useCart } from '@/contexts/cart-context';
 import { pagaditoService } from '@/services/pagadito';
 import WhatsAppContact from '@/components/WhatsAppContact';
 import { v4 as uuidv4 } from 'uuid';
+import { supabase } from '@/integrations/supabase/client';
 
 const formSchema = z.object({
   name: z.string().min(2, {
@@ -37,7 +38,7 @@ const formSchema = z.object({
 });
 
 const Checkout = () => {
-  const { cart, totalPrice, clearCart } = useCart();
+  const { items, total, clearCart } = useCart();
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
 
@@ -52,7 +53,7 @@ const Checkout = () => {
   });
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    if (cart.length === 0) {
+    if (items.length === 0) {
       toast.error('Your cart is empty');
       return;
     }
@@ -64,8 +65,8 @@ const Checkout = () => {
       
       // Create a payment with Pagadito
       const paymentResult = await pagaditoService.createPayment({
-        amount: totalPrice,
-        description: `Order ${orderId} - ${cart.length} items`,
+        amount: total,
+        description: `Order ${orderId} - ${items.length} items`,
         orderId,
         customerInfo: {
           name: values.name,
@@ -76,7 +77,7 @@ const Checkout = () => {
 
       if (paymentResult.success && paymentResult.data) {
         // For each item in the cart, create an order item in the database
-        cart.forEach(async (item) => {
+        items.forEach(async (item) => {
           await supabase.from('order_items').insert({
             order_id: orderId,
             product_id: item.id,
@@ -193,11 +194,11 @@ const Checkout = () => {
               <CardTitle>Order Summary</CardTitle>
             </CardHeader>
             <CardContent>
-              {cart.length === 0 ? (
+              {items.length === 0 ? (
                 <p className="text-gray-500">Your cart is empty</p>
               ) : (
                 <div className="space-y-4">
-                  {cart.map((item) => (
+                  {items.map((item) => (
                     <div key={item.id} className="flex justify-between items-center">
                       <div className="flex items-center">
                         <div className="w-12 h-12 rounded overflow-hidden mr-3">
@@ -221,7 +222,7 @@ const Checkout = () => {
             <CardFooter className="border-t pt-4 flex flex-col">
               <div className="flex justify-between items-center w-full mb-4">
                 <p className="font-medium">Total</p>
-                <p className="font-bold text-xl">${totalPrice.toFixed(2)}</p>
+                <p className="font-bold text-xl">${total.toFixed(2)}</p>
               </div>
               <WhatsAppContact className="w-full">
                 Ask about your order via WhatsApp
