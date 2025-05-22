@@ -28,9 +28,9 @@ const queryClient = new QueryClient();
 
 function App() {
   return (
-    <QueryClientProvider client={queryClient}>
-      <CartProvider>
-        <BrowserRouter>
+    <BrowserRouter>
+      <QueryClientProvider client={queryClient}>
+        <CartProvider>
           <TooltipProvider>
             <Routes>
               <Route path="/" element={<Layout />}>
@@ -60,9 +60,9 @@ function App() {
             <Toaster />
             <Sonner />
           </TooltipProvider>
-        </BrowserRouter>
-      </CartProvider>
-    </QueryClientProvider>
+        </CartProvider>
+      </QueryClientProvider>
+    </BrowserRouter>
   );
 }
 
