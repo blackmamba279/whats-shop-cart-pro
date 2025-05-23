@@ -276,49 +276,51 @@ const AdminPagadito = () => {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div>
-                <FormLabel>Webhook URL</FormLabel>
-                <div className="flex gap-2 mt-1">
-                  <Input 
-                    value={form.getValues().webhook_url || `${window.location.origin}/api/webhooks/pagadito`} 
-                    readOnly
-                  />
-                  <Button variant="outline" onClick={() => {
-                    navigator.clipboard.writeText(form.getValues().webhook_url || `${window.location.origin}/api/webhooks/pagadito`);
-                    toast.success('URL copied to clipboard');
-                  }}>
-                    Copy
-                  </Button>
+              <Form {...form}>
+                <div>
+                  <FormLabel>Webhook URL</FormLabel>
+                  <div className="flex gap-2 mt-1">
+                    <Input 
+                      value={form.getValues().webhook_url || `${window.location.origin}/api/webhooks/pagadito`} 
+                      readOnly
+                    />
+                    <Button variant="outline" onClick={() => {
+                      navigator.clipboard.writeText(form.getValues().webhook_url || `${window.location.origin}/api/webhooks/pagadito`);
+                      toast.success('URL copied to clipboard');
+                    }}>
+                      Copy
+                    </Button>
+                  </div>
+                  <p className="text-sm text-muted-foreground mt-2">
+                    Add this URL to your Pagadito merchant account webhook settings
+                  </p>
                 </div>
-                <p className="text-sm text-muted-foreground mt-2">
-                  Add this URL to your Pagadito merchant account webhook settings
-                </p>
-              </div>
-              
-              <div className="pt-4">
-                <FormLabel>Webhook Security Key</FormLabel>
-                <div className="flex gap-2 mt-1">
-                  <Input 
-                    value={webhookKey} 
-                    type="password"
-                    readOnly
-                  />
-                  <Button
-                    variant="outline"
-                    onClick={generateWebhookKey}
-                    disabled={isGeneratingKey}
-                  >
-                    {isGeneratingKey ? (
-                      <Loader className="mr-2 h-4 w-4 animate-spin" />
-                    ) : (
-                      'Generate New Key'
-                    )}
-                  </Button>
+                
+                <div className="pt-4">
+                  <FormLabel>Webhook Security Key</FormLabel>
+                  <div className="flex gap-2 mt-1">
+                    <Input 
+                      value={webhookKey} 
+                      type="password"
+                      readOnly
+                    />
+                    <Button
+                      variant="outline"
+                      onClick={generateWebhookKey}
+                      disabled={isGeneratingKey}
+                    >
+                      {isGeneratingKey ? (
+                        <Loader className="mr-2 h-4 w-4 animate-spin" />
+                      ) : (
+                        'Generate New Key'
+                      )}
+                    </Button>
+                  </div>
+                  <p className="text-sm text-muted-foreground mt-2">
+                    This key is used to verify webhook requests from Pagadito
+                  </p>
                 </div>
-                <p className="text-sm text-muted-foreground mt-2">
-                  This key is used to verify webhook requests from Pagadito
-                </p>
-              </div>
+              </Form>
             </CardContent>
             <CardFooter>
               <Form {...form}>
