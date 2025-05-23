@@ -9,22 +9,33 @@ const Cart = () => {
   const { items, updateQuantity, removeItem, total, clearCart } = useCart();
   
   useEffect(() => {
-    // Load Pagadito merchant validation script
-    const script = document.createElement('script');
-    script.type = 'text/javascript';
-    script.src = 'https://comercios.pagadito.com/validate/index.php?merchant=6034e62d2d08eff1a3e05dd0491fbaec&size=m&_idioma=en';
-    script.async = true;
-    
-    // Find the pagadito container and append the script
-    const pagaditoContainer = document.getElementById('pagadito-certification');
-    if (pagaditoContainer) {
-      pagaditoContainer.appendChild(script);
-    }
+    // Small delay to ensure DOM is ready
+    const timer = setTimeout(() => {
+      // Remove any existing script first
+      const existingScript = document.querySelector('script[src*="comercios.pagadito.com"]');
+      if (existingScript) {
+        existingScript.remove();
+      }
+      
+      // Load Pagadito merchant validation script
+      const script = document.createElement('script');
+      script.type = 'text/javascript';
+      script.src = 'https://comercios.pagadito.com/validate/index.php?merchant=6034e62d2d08eff1a3e05dd0491fbaec&size=m&_idioma=en';
+      script.async = true;
+      
+      // Find the pagadito container and append the script
+      const pagaditoContainer = document.getElementById('pagadito-certification');
+      if (pagaditoContainer) {
+        pagaditoContainer.appendChild(script);
+      }
+    }, 100);
     
     return () => {
+      clearTimeout(timer);
       // Cleanup script when component unmounts
-      if (pagaditoContainer && pagaditoContainer.contains(script)) {
-        pagaditoContainer.removeChild(script);
+      const script = document.querySelector('script[src*="comercios.pagadito.com"]');
+      if (script) {
+        script.remove();
       }
     };
   }, []);
@@ -158,7 +169,10 @@ const Cart = () => {
               
               {/* Pagadito Merchant Certification */}
               <div className="pt-4 text-center">
-                <div id="pagadito-certification"></div>
+                <div className="text-xs text-gray-500 mb-2">Secure Payment Partner</div>
+                <div id="pagadito-certification" className="min-h-[60px] flex items-center justify-center">
+                  <div className="text-xs text-gray-400">Loading certification...</div>
+                </div>
               </div>
             </div>
           </div>
