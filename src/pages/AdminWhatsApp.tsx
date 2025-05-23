@@ -10,6 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { Form, FormField, FormItem, FormLabel, FormControl, FormDescription, FormMessage } from '@/components/ui/form';
 import { toast } from 'sonner';
 import { Save } from 'lucide-react';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 // Define form schema using Zod
 const formSchema = z.object({
@@ -18,7 +19,12 @@ const formSchema = z.object({
     .min(10, { message: "Phone number must be at least 10 digits" })
     .regex(/^\+?[0-9]+$/, { message: "Phone number must contain only digits, optionally starting with +" }),
   defaultMessage: z.string().min(10, { message: "Default message must be at least 10 characters" }),
-  productMessageTemplate: z.string().min(10, { message: "Product message template must be at least 10 characters" }),
+  productMessageTemplate: z.string()
+    .min(10, { message: "Product message template must be at least 10 characters" })
+    .refine(value => 
+      value.includes("{productName}") && value.includes("{productPrice}"), 
+      { message: "Template must include {productName} and {productPrice} placeholders" }
+    ),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -47,7 +53,7 @@ const AdminWhatsApp = () => {
     <div>
       <h1 className="text-3xl font-bold mb-6">WhatsApp Settings</h1>
       
-      <Card className="max-w-2xl">
+      <Card className="max-w-2xl mb-6">
         <CardHeader>
           <CardTitle>Configure WhatsApp Integration</CardTitle>
           <CardDescription>
@@ -110,7 +116,7 @@ const AdminWhatsApp = () => {
                       />
                     </FormControl>
                     <FormDescription>
-                      Use {'{productName}'} and {'{productPrice}'} as placeholders that will be replaced with the actual product details
+                      Use <code className="bg-muted px-1 rounded text-sm">{'{productName}'}</code> and <code className="bg-muted px-1 rounded text-sm">{'{productPrice}'}</code> as placeholders that will be replaced with the actual product details
                     </FormDescription>
                     <FormMessage />
                   </FormItem>
@@ -118,10 +124,16 @@ const AdminWhatsApp = () => {
               />
             </CardContent>
             
-            <CardFooter>
+            <CardFooter className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
               <Button type="submit" className="bg-whatsapp hover:bg-whatsapp/90">
                 <Save className="mr-2 h-4 w-4" /> Save Settings
               </Button>
+              <Alert className="bg-muted/50 flex-1">
+                <AlertTitle className="text-sm">Important:</AlertTitle>
+                <AlertDescription className="text-xs">
+                  Make sure to include <code className="bg-background px-1 rounded">{'{productName}'}</code> and <code className="bg-background px-1 rounded">{'{productPrice}'}</code> exactly as shown (with curly braces) in your template.
+                </AlertDescription>
+              </Alert>
             </CardFooter>
           </form>
         </Form>

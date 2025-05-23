@@ -27,6 +27,7 @@ const WhatsAppContact: React.FC<WhatsAppContactProps> = ({
       const template = localStorage.getItem('waProductMessageTemplate') || 
         'Hello! I am interested in {productName} priced at ${productPrice}.';
       
+      // Fix the placeholder replacement to properly substitute values
       message = template
         .replace('{productName}', product.name)
         .replace('{productPrice}', product.price.toString());
