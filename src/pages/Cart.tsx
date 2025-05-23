@@ -1,5 +1,4 @@
-
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useCart } from '../contexts/cart-context';
 import { Button } from '../components/ui/button';
@@ -8,6 +7,27 @@ import { Minus, Plus, ShoppingCart, Trash2 } from 'lucide-react';
 
 const Cart = () => {
   const { items, updateQuantity, removeItem, total, clearCart } = useCart();
+  
+  useEffect(() => {
+    // Load Pagadito merchant validation script
+    const script = document.createElement('script');
+    script.type = 'text/javascript';
+    script.src = 'https://comercios.pagadito.com/validate/index.php?merchant=6034e62d2d08eff1a3e05dd0491fbaec&size=m&_idioma=en';
+    script.async = true;
+    
+    // Find the pagadito container and append the script
+    const pagaditoContainer = document.getElementById('pagadito-certification');
+    if (pagaditoContainer) {
+      pagaditoContainer.appendChild(script);
+    }
+    
+    return () => {
+      // Cleanup script when component unmounts
+      if (pagaditoContainer && pagaditoContainer.contains(script)) {
+        pagaditoContainer.removeChild(script);
+      }
+    };
+  }, []);
   
   if (items.length === 0) {
     return (
@@ -135,6 +155,11 @@ const Cart = () => {
               <p className="text-xs text-gray-500 text-center">
                 By proceeding, you'll be connected with our team on WhatsApp to complete your order
               </p>
+              
+              {/* Pagadito Merchant Certification */}
+              <div className="pt-4 text-center">
+                <div id="pagadito-certification"></div>
+              </div>
             </div>
           </div>
         </div>
