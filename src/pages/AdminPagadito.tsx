@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
@@ -320,13 +321,15 @@ const AdminPagadito = () => {
               </div>
             </CardContent>
             <CardFooter>
-              <Button 
-                onClick={form.handleSubmit(onSubmit)} 
-                disabled={isLoading}
-              >
-                {isLoading && <Loader className="mr-2 h-4 w-4 animate-spin" />}
-                Save Settings
-              </Button>
+              <Form {...form}>
+                <Button 
+                  onClick={form.handleSubmit(onSubmit)} 
+                  disabled={isLoading}
+                >
+                  {isLoading && <Loader className="mr-2 h-4 w-4 animate-spin" />}
+                  Save Settings
+                </Button>
+              </Form>
             </CardFooter>
           </Card>
         </TabsContent>
@@ -344,37 +347,39 @@ const AdminPagadito = () => {
                 You can test your Pagadito connection by creating a test payment:
               </p>
               <div className="flex justify-end">
-                <Button 
-                  onClick={async () => {
-                    try {
-                      const testSettings = form.getValues();
-                      if (!testSettings.uid || !testSettings.wsk) {
-                        toast.error('Please enter your Pagadito credentials first');
-                        return;
-                      }
+                <Form {...form}>
+                  <Button 
+                    onClick={async () => {
+                      try {
+                        const testSettings = form.getValues();
+                        if (!testSettings.uid || !testSettings.wsk) {
+                          toast.error('Please enter your Pagadito credentials first');
+                          return;
+                        }
 
-                      const result = await fetch('/api/pagadito-test', {
-                        method: 'POST',
-                        headers: {
-                          'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify(testSettings),
-                      });
-                      
-                      if (result.ok) {
-                        toast.success('Connection to Pagadito successful');
-                      } else {
-                        const errorData = await result.json();
-                        toast.error(`Connection failed: ${errorData.message}`);
+                        const result = await fetch('/api/pagadito-test', {
+                          method: 'POST',
+                          headers: {
+                            'Content-Type': 'application/json',
+                          },
+                          body: JSON.stringify(testSettings),
+                        });
+                        
+                        if (result.ok) {
+                          toast.success('Connection to Pagadito successful');
+                        } else {
+                          const errorData = await result.json();
+                          toast.error(`Connection failed: ${errorData.message}`);
+                        }
+                      } catch (error) {
+                        console.error('Test connection error:', error);
+                        toast.error('Failed to test connection');
                       }
-                    } catch (error) {
-                      console.error('Test connection error:', error);
-                      toast.error('Failed to test connection');
-                    }
-                  }}
-                >
-                  Test Connection
-                </Button>
+                    }}
+                  >
+                    Test Connection
+                  </Button>
+                </Form>
               </div>
             </CardContent>
           </Card>
