@@ -1,9 +1,12 @@
 
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { useLanguage } from '../contexts/language-context';
 import { Button } from './ui/button';
 
 const Hero = () => {
+  const { t } = useLanguage();
+
   return (
     <section className="py-12 md:py-24">
       <div className="container px-4 md:px-6">
@@ -11,22 +14,21 @@ const Hero = () => {
           <div className="flex flex-col justify-center space-y-4">
             <div className="space-y-2">
               <h1 className="text-3xl font-bold tracking-tighter sm:text-5xl xl:text-6xl/none">
-                Shop Smart, Chat Directly
+                {t('heroTitle')}
               </h1>
               <p className="max-w-[600px] text-gray-500 md:text-xl">
-                Browse our products and connect instantly with sellers via WhatsApp.
-                No complicated checkout processes, just direct and personal shopping.
+                {t('heroDescription')}
               </p>
             </div>
             <div className="flex flex-col gap-2 min-[400px]:flex-row">
               <Link to="/products">
                 <Button className="bg-whatsapp hover:bg-whatsapp-dark text-white">
-                  Browse Products
+                  {t('browseProducts')}
                 </Button>
               </Link>
               <Link to="/categories">
                 <Button variant="outline">
-                  View Categories
+                  {t('viewCategories')}
                 </Button>
               </Link>
             </div>

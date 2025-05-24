@@ -2,12 +2,15 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { useCart } from '../contexts/cart-context';
+import { useLanguage } from '../contexts/language-context';
 import { ShoppingCart, Lock } from 'lucide-react';
 import { Button } from './ui/button';
 import { Badge } from './ui/badge';
+import LanguageSwitcher from './LanguageSwitcher';
 
 const Navbar = () => {
   const { itemCount } = useCart();
+  const { t } = useLanguage();
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -28,17 +31,18 @@ const Navbar = () => {
         
         <nav className="hidden md:flex items-center gap-6">
           <Link to="/" className="text-sm font-medium hover:text-whatsapp transition-colors">
-            Home
+            {t('home')}
           </Link>
           <Link to="/products" className="text-sm font-medium hover:text-whatsapp transition-colors">
-            Products
+            {t('products')}
           </Link>
           <Link to="/categories" className="text-sm font-medium hover:text-whatsapp transition-colors">
-            Categories
+            {t('categories')}
           </Link>
         </nav>
         
         <div className="flex items-center gap-4">
+          <LanguageSwitcher />
           <Link to="/admin/login">
             <Button variant="outline" size="icon">
               <Lock className="h-5 w-5" />

@@ -1,6 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import CategoryCard from './CategoryCard';
+import { useLanguage } from '../contexts/language-context';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
@@ -14,6 +15,7 @@ interface Category {
 const CategoryList = () => {
   const [categories, setCategories] = useState<Category[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const { t } = useLanguage();
 
   // Load categories from Supabase
   const loadCategories = async () => {
@@ -51,9 +53,9 @@ const CategoryList = () => {
         <div className="container px-4 md:px-6">
           <div className="flex flex-col items-center justify-center space-y-4 text-center">
             <div className="space-y-2">
-              <h2 className="text-3xl font-bold tracking-tighter md:text-4xl">Shop by Category</h2>
+              <h2 className="text-3xl font-bold tracking-tighter md:text-4xl">{t('shopByCategory')}</h2>
               <p className="max-w-[700px] text-gray-500 md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
-                Find exactly what you're looking for by browsing our product categories
+                {t('categoryDescription')}
               </p>
             </div>
           </div>
@@ -72,15 +74,15 @@ const CategoryList = () => {
       <div className="container px-4 md:px-6">
         <div className="flex flex-col items-center justify-center space-y-4 text-center">
           <div className="space-y-2">
-            <h2 className="text-3xl font-bold tracking-tighter md:text-4xl">Shop by Category</h2>
+            <h2 className="text-3xl font-bold tracking-tighter md:text-4xl">{t('shopByCategory')}</h2>
             <p className="max-w-[700px] text-gray-500 md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
-              Find exactly what you're looking for by browsing our product categories
+              {t('categoryDescription')}
             </p>
           </div>
         </div>
         {convertedCategories.length === 0 ? (
           <div className="text-center py-12">
-            <p className="text-gray-500">No categories available</p>
+            <p className="text-gray-500">{t('noCategoriesAvailable')}</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-8">

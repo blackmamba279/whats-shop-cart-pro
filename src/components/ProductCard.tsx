@@ -2,6 +2,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Product } from '../data/products';
+import { useLanguage } from '../contexts/language-context';
 import { Card, CardContent, CardFooter } from './ui/card';
 import { Button } from './ui/button';
 import { useCart } from '../contexts/cart-context';
@@ -14,6 +15,7 @@ interface ProductCardProps {
 
 const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   const { addItem } = useCart();
+  const { t } = useLanguage();
   
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -31,7 +33,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
           />
           {product.originalPrice && (
             <Badge className="absolute top-2 right-2 bg-red-500">
-              Sale
+              {t('sale')}
             </Badge>
           )}
         </div>
@@ -68,7 +70,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
             className="w-full bg-whatsapp hover:bg-whatsapp-dark text-white"
             onClick={handleAddToCart}
           >
-            <ShoppingCart className="mr-2 h-4 w-4" /> Add to Cart
+            <ShoppingCart className="mr-2 h-4 w-4" /> {t('addToCart')}
           </Button>
         </CardFooter>
       </Card>
