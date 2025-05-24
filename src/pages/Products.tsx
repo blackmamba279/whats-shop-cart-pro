@@ -1,8 +1,8 @@
-
 import React, { useState, useEffect } from 'react';
 import ProductCard from '../components/ProductCard';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { useLanguage } from '../contexts/language-context';
 
 interface Product {
   id: string;
@@ -26,6 +26,7 @@ const Products = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const { t } = useLanguage();
 
   // Load products from Supabase
   const loadProducts = async () => {
@@ -89,7 +90,7 @@ const Products = () => {
   if (isLoading) {
     return (
       <div className="container py-8 px-4 md:px-6">
-        <h1 className="text-3xl font-bold mb-8">All Products</h1>
+        <h1 className="text-3xl font-bold mb-8">{t('allProducts')}</h1>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {[...Array(8)].map((_, i) => (
             <div key={i} className="bg-gray-200 animate-pulse rounded-lg h-64"></div>
@@ -101,11 +102,11 @@ const Products = () => {
 
   return (
     <div className="container py-8 px-4 md:px-6">
-      <h1 className="text-3xl font-bold mb-8">All Products</h1>
+      <h1 className="text-3xl font-bold mb-8">{t('allProducts')}</h1>
       
       {convertedProducts.length === 0 ? (
         <div className="text-center py-12">
-          <p className="text-gray-500 text-lg">No products available</p>
+          <p className="text-gray-500 text-lg">{t('noProductsAvailable')}</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">

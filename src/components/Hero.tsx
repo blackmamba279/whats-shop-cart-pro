@@ -37,7 +37,7 @@ const Hero = () => {
             <img
               alt="Hero Image"
               className="object-cover w-full h-full"
-              src="/placeholder.svg"
+              src="https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?ixlib=rb-4.0.3&auto=format&fit=crop&w=2340&q=80"
               style={{ 
                 objectFit: 'cover',
                 objectPosition: 'center',
