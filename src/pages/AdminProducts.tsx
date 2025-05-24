@@ -1,99 +1,181 @@
 
-import React, { useState, useRef } from 'react';
-import { Product, products as initialProducts } from '../data/products';
+import React, { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Plus, Edit, Trash, Search, Upload } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Plus, Edit, Trash, Search, Upload, X } from 'lucide-react';
 import { toast } from 'sonner';
+import { supabase } from '@/integrations/supabase/client';
+
+interface Product {
+  id: string;
+  name: string;
+  price: number;
+  original_price?: number;
+  description: string;
+  image_url: string;
+  category_id: string;
+  in_stock: boolean;
+  featured: boolean;
+  rating: number;
+  created_at?: string;
+  updated_at?: string;
+}
+
+interface Category {
+  id: string;
+  name: string;
+  description: string;
+  image_url: string;
+}
 
 const AdminProducts = () => {
-  const [products, setProducts] = useState<Product[]>(initialProducts);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [currentProduct, setCurrentProduct] = useState<Product | null>(null);
   const [editMode, setEditMode] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string>('');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Form state
   const [formData, setFormData] = useState<Partial<Product>>({
     name: '',
     price: 0,
-    originalPrice: undefined,
+    original_price: undefined,
     description: '',
-    image: '/placeholder.svg',
-    category: '',
-    inStock: true,
+    image_url: '',
+    category_id: '',
+    in_stock: true,
     featured: false,
-    rating: 0
+    rating: 5
   });
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+  // Load products from Supabase
+  const loadProducts = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('products')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setProducts(data || []);
+    } catch (error) {
+      console.error('Error loading products:', error);
+      toast.error('Failed to load products');
+    }
+  };
+
+  // Load categories from Supabase
+  const loadCategories = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('categories')
+        .select('*')
+        .order('name', { ascending: true });
+
+      if (error) throw error;
+      setCategories(data || []);
+    } catch (error) {
+      console.error('Error loading categories:', error);
+      toast.error('Failed to load categories');
+    }
+  };
+
+  useEffect(() => {
+    loadProducts();
+    loadCategories();
+  }, []);
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value, type } = e.target;
     
     if (type === 'checkbox') {
       const checkboxInput = e.target as HTMLInputElement;
       setFormData({ ...formData, [name]: checkboxInput.checked });
-    } else if (name === 'price' || name === 'originalPrice' || name === 'rating') {
+    } else if (name === 'price' || name === 'original_price' || name === 'rating') {
       setFormData({ ...formData, [name]: parseFloat(value) || 0 });
     } else {
       setFormData({ ...formData, [name]: value });
     }
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (!file) return;
-    
-    // Create a local URL for the image preview
-    const imageUrl = URL.createObjectURL(file);
-    setImagePreview(imageUrl);
-    
-    // In a real application, you would upload this file to a server
-    // For now, we'll just use the local URL
-    setFormData({ ...formData, image: imageUrl });
-    
-    toast.info("Image selected. It will be saved when you submit the form.");
+    if (file) {
+      setImageFile(file);
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setImagePreview(e.target?.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
-  const triggerFileInput = () => {
-    fileInputRef.current?.click();
+  const uploadImage = async (file: File, productId: string): Promise<string> => {
+    const fileExt = file.name.split('.').pop();
+    const fileName = `${productId}.${fileExt}`;
+    const filePath = `${fileName}`;
+
+    const { error: uploadError } = await supabase.storage
+      .from('category-images')
+      .upload(filePath, file, {
+        upsert: true
+      });
+
+    if (uploadError) throw uploadError;
+
+    const { data } = supabase.storage
+      .from('category-images')
+      .getPublicUrl(filePath);
+
+    return data.publicUrl;
+  };
+
+  const getCategoryName = (categoryId: string) => {
+    const category = categories.find(c => c.id === categoryId);
+    return category ? category.name : 'Unknown';
   };
 
   const filteredProducts = products.filter(product => 
     product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     product.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    product.category.toLowerCase().includes(searchQuery.toLowerCase())
+    getCategoryName(product.category_id).toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const resetForm = () => {
     setFormData({
       name: '',
       price: 0,
-      originalPrice: undefined,
+      original_price: undefined,
       description: '',
-      image: '/placeholder.svg',
-      category: '',
-      inStock: true,
+      image_url: '',
+      category_id: '',
+      in_stock: true,
       featured: false,
-      rating: 0
+      rating: 5
     });
     setCurrentProduct(null);
     setEditMode(false);
-    setImagePreview(null);
+    setImageFile(null);
+    setImagePreview('');
   };
 
   const handleOpenDialog = (product?: Product) => {
     if (product) {
       setCurrentProduct(product);
       setFormData({ ...product });
-      setImagePreview(product.image);
       setEditMode(true);
+      setImagePreview(product.image_url);
     } else {
       resetForm();
       setEditMode(false);
@@ -111,51 +193,117 @@ const AdminProducts = () => {
     setIsDeleteDialogOpen(true);
   };
 
-  const handleDeleteConfirm = () => {
-    if (currentProduct) {
-      const updatedProducts = products.filter(p => p.id !== currentProduct.id);
-      setProducts(updatedProducts);
+  const handleDeleteConfirm = async () => {
+    if (!currentProduct) return;
+
+    setIsLoading(true);
+    try {
+      const { error } = await supabase
+        .from('products')
+        .delete()
+        .eq('id', currentProduct.id);
+
+      if (error) throw error;
+
+      // Delete the image from storage if it exists
+      if (currentProduct.image_url.includes('category-images')) {
+        const fileName = currentProduct.image_url.split('/').pop();
+        if (fileName) {
+          await supabase.storage
+            .from('category-images')
+            .remove([fileName]);
+        }
+      }
+
       toast.success(`Product "${currentProduct.name}" deleted successfully`);
+      loadProducts();
+    } catch (error) {
+      console.error('Error deleting product:', error);
+      toast.error('Failed to delete product');
+    } finally {
+      setIsLoading(false);
+      setIsDeleteDialogOpen(false);
+      setCurrentProduct(null);
     }
-    setIsDeleteDialogOpen(false);
-    setCurrentProduct(null);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const triggerFileInput = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!formData.name || !formData.price || !formData.description || !formData.category) {
+    if (!formData.name || !formData.price || !formData.description || !formData.category_id) {
       toast.error('Please fill all required fields');
       return;
     }
 
-    if (editMode && currentProduct) {
-      // Update existing product
-      const updatedProducts = products.map(p => 
-        p.id === currentProduct.id ? { ...p, ...formData } : p
-      );
-      setProducts(updatedProducts);
-      toast.success(`Product "${formData.name}" updated successfully`);
-    } else {
-      // Create new product
-      const newProduct: Product = {
-        id: `product-${Date.now()}`,
-        name: formData.name!,
-        price: formData.price!,
-        originalPrice: formData.originalPrice,
-        description: formData.description!,
-        image: formData.image || '/placeholder.svg',
-        category: formData.category!,
-        inStock: formData.inStock ?? true,
-        featured: formData.featured,
-        rating: formData.rating || 0
-      };
-      
-      setProducts([...products, newProduct]);
-      toast.success(`Product "${newProduct.name}" added successfully`);
-    }
+    setIsLoading(true);
+    try {
+      let imageUrl = formData.image_url || '';
 
-    handleCloseDialog();
+      if (editMode && currentProduct) {
+        // Update existing product
+        let productData = { ...formData };
+
+        // Upload new image if selected
+        if (imageFile) {
+          imageUrl = await uploadImage(imageFile, currentProduct.id);
+          productData.image_url = imageUrl;
+        }
+
+        const { error } = await supabase
+          .from('products')
+          .update(productData)
+          .eq('id', currentProduct.id);
+
+        if (error) throw error;
+        toast.success(`Product "${formData.name}" updated successfully`);
+      } else {
+        // Create new product
+        const newProductData = {
+          name: formData.name!,
+          description: formData.description!,
+          price: formData.price!,
+          original_price: formData.original_price,
+          category_id: formData.category_id!,
+          in_stock: formData.in_stock ?? true,
+          featured: formData.featured ?? false,
+          rating: formData.rating || 5,
+          image_url: ''
+        };
+
+        const { data, error } = await supabase
+          .from('products')
+          .insert([newProductData])
+          .select()
+          .single();
+
+        if (error) throw error;
+
+        // Upload image if selected
+        if (imageFile && data) {
+          imageUrl = await uploadImage(imageFile, data.id);
+          const { error: updateError } = await supabase
+            .from('products')
+            .update({ image_url: imageUrl })
+            .eq('id', data.id);
+
+          if (updateError) throw updateError;
+        }
+
+        toast.success(`Product "${newProductData.name}" added successfully`);
+      }
+
+      loadProducts();
+      handleCloseDialog();
+    } catch (error) {
+      console.error('Error saving product:', error);
+      toast.error('Failed to save product');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -205,18 +353,18 @@ const AdminProducts = () => {
                       <TableCell>
                         <div className="w-10 h-10 rounded overflow-hidden">
                           <img 
-                            src={product.image} 
+                            src={product.image_url || '/placeholder.svg'} 
                             alt={product.name} 
                             className="w-full h-full object-cover"
                           />
                         </div>
                       </TableCell>
                       <TableCell className="font-medium">{product.name}</TableCell>
-                      <TableCell>{product.category}</TableCell>
+                      <TableCell>{getCategoryName(product.category_id)}</TableCell>
                       <TableCell>${product.price}</TableCell>
                       <TableCell>
-                        <span className={`px-2 py-1 rounded-full text-xs ${product.inStock ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
-                          {product.inStock ? 'In Stock' : 'Out of Stock'}
+                        <span className={`px-2 py-1 rounded-full text-xs ${product.in_stock ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+                          {product.in_stock ? 'In Stock' : 'Out of Stock'}
                         </span>
                       </TableCell>
                       <TableCell className="text-right">
@@ -273,21 +421,22 @@ const AdminProducts = () => {
               </div>
               
               <div className="space-y-2">
-                <label htmlFor="category" className="text-sm font-medium">Category *</label>
-                <select
-                  id="category"
-                  name="category"
-                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-                  value={formData.category}
-                  onChange={handleInputChange}
-                  required
+                <label htmlFor="category_id" className="text-sm font-medium">Category *</label>
+                <Select
+                  value={formData.category_id}
+                  onValueChange={(value) => setFormData({ ...formData, category_id: value })}
                 >
-                  <option value="">Select category</option>
-                  <option value="smartphones">Smartphones</option>
-                  <option value="laptops">Laptops</option>
-                  <option value="accessories">Accessories</option>
-                  <option value="wearables">Wearables</option>
-                </select>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select category" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {categories.map((category) => (
+                      <SelectItem key={category.id} value={category.id}>
+                        {category.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
             </div>
 
@@ -307,14 +456,14 @@ const AdminProducts = () => {
               </div>
               
               <div className="space-y-2">
-                <label htmlFor="originalPrice" className="text-sm font-medium">Original Price ($)</label>
+                <label htmlFor="original_price" className="text-sm font-medium">Original Price ($)</label>
                 <Input
-                  id="originalPrice"
-                  name="originalPrice"
+                  id="original_price"
+                  name="original_price"
                   type="number"
                   step="0.01"
                   min="0"
-                  value={formData.originalPrice}
+                  value={formData.original_price}
                   onChange={handleInputChange}
                 />
               </div>
@@ -334,49 +483,52 @@ const AdminProducts = () => {
             
             <div className="space-y-2">
               <label className="text-sm font-medium">Product Image</label>
-              <div className="flex items-center gap-4">
-                <div className="w-24 h-24 border rounded-md overflow-hidden bg-gray-50 flex items-center justify-center">
-                  {imagePreview ? (
-                    <img 
-                      src={imagePreview} 
-                      alt="Product preview" 
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <div className="text-gray-400 text-xs text-center">No image</div>
-                  )}
-                </div>
-                <div>
-                  <input
+              <div className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <Input
                     ref={fileInputRef}
                     type="file"
                     accept="image/*"
-                    className="hidden"
-                    onChange={handleFileChange}
+                    onChange={handleImageChange}
+                    className="flex-1"
                   />
-                  <Button 
-                    type="button" 
-                    variant="outline" 
-                    onClick={triggerFileInput}
-                  >
-                    <Upload className="mr-2 h-4 w-4" />
-                    Upload Image
-                  </Button>
+                  {imagePreview && (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="icon"
+                      onClick={() => {
+                        setImageFile(null);
+                        setImagePreview('');
+                      }}
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  )}
                 </div>
+                {imagePreview && (
+                  <div className="mt-2">
+                    <img 
+                      src={imagePreview} 
+                      alt="Preview" 
+                      className="w-20 h-20 object-cover rounded border"
+                    />
+                  </div>
+                )}
               </div>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div className="flex items-center space-x-2">
                 <Input
-                  id="inStock"
-                  name="inStock"
+                  id="in_stock"
+                  name="in_stock"
                   type="checkbox"
                   className="w-4 h-4"
-                  checked={formData.inStock}
+                  checked={formData.in_stock}
                   onChange={handleInputChange}
                 />
-                <label htmlFor="inStock" className="text-sm font-medium">In Stock</label>
+                <label htmlFor="in_stock" className="text-sm font-medium">In Stock</label>
               </div>
               
               <div className="flex items-center space-x-2">
@@ -410,8 +562,8 @@ const AdminProducts = () => {
               <Button type="button" variant="outline" onClick={handleCloseDialog}>
                 Cancel
               </Button>
-              <Button type="submit" className="bg-whatsapp hover:bg-whatsapp/90">
-                {editMode ? 'Update Product' : 'Add Product'}
+              <Button type="submit" className="bg-whatsapp hover:bg-whatsapp/90" disabled={isLoading}>
+                {isLoading ? 'Saving...' : editMode ? 'Update Product' : 'Add Product'}
               </Button>
             </DialogFooter>
           </form>
@@ -431,8 +583,8 @@ const AdminProducts = () => {
             <Button variant="outline" onClick={() => setIsDeleteDialogOpen(false)}>
               Cancel
             </Button>
-            <Button variant="destructive" onClick={handleDeleteConfirm}>
-              Delete
+            <Button variant="destructive" onClick={handleDeleteConfirm} disabled={isLoading}>
+              {isLoading ? 'Deleting...' : 'Delete'}
             </Button>
           </DialogFooter>
         </DialogContent>
