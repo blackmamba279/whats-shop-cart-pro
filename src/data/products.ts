@@ -1,4 +1,3 @@
-
 export interface Product {
   id: string;
   name: string;
@@ -10,6 +9,7 @@ export interface Product {
   inStock: boolean;
   featured?: boolean;
   rating: number;
+  payment_link?: string;
 }
 
 export interface Category {

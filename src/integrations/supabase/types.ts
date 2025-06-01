@@ -369,6 +369,7 @@ export type Database = {
           in_stock: boolean | null
           name: string
           original_price: number | null
+          payment_link: string | null
           price: number
           rating: number | null
           updated_at: string | null
@@ -383,6 +384,7 @@ export type Database = {
           in_stock?: boolean | null
           name: string
           original_price?: number | null
+          payment_link?: string | null
           price: number
           rating?: number | null
           updated_at?: string | null
@@ -397,6 +399,7 @@ export type Database = {
           in_stock?: boolean | null
           name?: string
           original_price?: number | null
+          payment_link?: string | null
           price?: number
           rating?: number | null
           updated_at?: string | null

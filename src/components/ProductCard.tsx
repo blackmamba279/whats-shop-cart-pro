@@ -9,6 +9,7 @@ import { useCart } from '../contexts/cart-context';
 import { ShoppingCart, Star } from 'lucide-react';
 import { Badge } from './ui/badge';
 import ImageModal from './ImageModal';
+import PayNowButton from './PayNowButton';
 
 interface ProductCardProps {
   product: Product;
@@ -74,13 +75,23 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
             </div>
           </CardContent>
           
-          <CardFooter className="p-4 pt-0">
+          <CardFooter className="p-4 pt-0 flex flex-col gap-2">
             <Button 
               className="w-full bg-whatsapp hover:bg-whatsapp-dark text-white"
               onClick={handleAddToCart}
             >
               <ShoppingCart className="mr-2 h-4 w-4" /> {t('addToCart')}
             </Button>
+            
+            {product.payment_link && (
+              <div onClick={(e) => e.preventDefault()}>
+                <PayNowButton 
+                  paymentLink={product.payment_link}
+                  productName={product.name}
+                  className="w-full"
+                />
+              </div>
+            )}
           </CardFooter>
         </Card>
       </Link>

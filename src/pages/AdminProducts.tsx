@@ -22,6 +22,7 @@ interface Product {
   in_stock: boolean;
   featured: boolean;
   rating: number;
+  payment_link?: string;
   created_at?: string;
   updated_at?: string;
 }
@@ -56,7 +57,8 @@ const AdminProducts = () => {
     category_id: '',
     in_stock: true,
     featured: false,
-    rating: 5
+    rating: 5,
+    payment_link: ''
   });
 
   // Load products from Supabase
@@ -162,7 +164,8 @@ const AdminProducts = () => {
       category_id: '',
       in_stock: true,
       featured: false,
-      rating: 5
+      rating: 5,
+      payment_link: ''
     });
     setCurrentProduct(null);
     setEditMode(false);
@@ -271,6 +274,7 @@ const AdminProducts = () => {
           in_stock: formData.in_stock ?? true,
           featured: formData.featured ?? false,
           rating: formData.rating || 5,
+          payment_link: formData.payment_link || '',
           image_url: ''
         };
 
@@ -337,13 +341,14 @@ const AdminProducts = () => {
                   <TableHead>Category</TableHead>
                   <TableHead>Price</TableHead>
                   <TableHead>Stock</TableHead>
+                  <TableHead>Pay Now</TableHead>
                   <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {filteredProducts.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={6} className="text-center py-10 text-gray-500">
+                    <TableCell colSpan={7} className="text-center py-10 text-gray-500">
                       No products found
                     </TableCell>
                   </TableRow>
@@ -366,6 +371,17 @@ const AdminProducts = () => {
                         <span className={`px-2 py-1 rounded-full text-xs ${product.in_stock ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
                           {product.in_stock ? 'In Stock' : 'Out of Stock'}
                         </span>
+                      </TableCell>
+                      <TableCell>
+                        {product.payment_link ? (
+                          <span className="px-2 py-1 rounded-full text-xs bg-blue-100 text-blue-800">
+                            Enabled
+                          </span>
+                        ) : (
+                          <span className="px-2 py-1 rounded-full text-xs bg-gray-100 text-gray-600">
+                            Disabled
+                          </span>
+                        )}
                       </TableCell>
                       <TableCell className="text-right">
                         <div className="flex justify-end gap-2">
@@ -479,6 +495,19 @@ const AdminProducts = () => {
                 onChange={handleInputChange}
                 required
               />
+            </div>
+            
+            <div className="space-y-2">
+              <label htmlFor="payment_link" className="text-sm font-medium">Payment Link (Pagadito URL)</label>
+              <Input
+                id="payment_link"
+                name="payment_link"
+                type="url"
+                placeholder="https://pagadito.com/..."
+                value={formData.payment_link}
+                onChange={handleInputChange}
+              />
+              <p className="text-xs text-gray-500">Enter the direct Pagadito payment URL (pagalink) for this product</p>
             </div>
             
             <div className="space-y-2">

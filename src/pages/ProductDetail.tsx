@@ -5,6 +5,7 @@ import { getProductById } from '../data/products';
 import { Button } from '../components/ui/button';
 import { useCart } from '../contexts/cart-context';
 import WhatsAppContact from '../components/WhatsAppContact';
+import PayNowButton from '../components/PayNowButton';
 import { ChevronLeft, Star, ShoppingCart, Check } from 'lucide-react';
 import { Badge } from '../components/ui/badge';
 import ImageModal from '../components/ImageModal';
@@ -93,27 +94,37 @@ const ProductDetail = () => {
                 )}
               </div>
               
-              <div className="flex flex-col sm:flex-row gap-2">
-                <Button 
-                  onClick={() => addItem(product)}
-                  className="flex-1 bg-gray-900 hover:bg-gray-700 text-white"
-                  disabled={!product.inStock}
-                >
-                  {isInCart ? (
-                    <>
-                      <Check className="mr-2 h-4 w-4" /> Added to Cart
-                    </>
-                  ) : (
-                    <>
-                      <ShoppingCart className="mr-2 h-4 w-4" /> Add to Cart
-                    </>
-                  )}
-                </Button>
+              <div className="flex flex-col gap-2">
+                <div className="flex flex-col sm:flex-row gap-2">
+                  <Button 
+                    onClick={() => addItem(product)}
+                    className="flex-1 bg-gray-900 hover:bg-gray-700 text-white"
+                    disabled={!product.inStock}
+                  >
+                    {isInCart ? (
+                      <>
+                        <Check className="mr-2 h-4 w-4" /> Added to Cart
+                      </>
+                    ) : (
+                      <>
+                        <ShoppingCart className="mr-2 h-4 w-4" /> Add to Cart
+                      </>
+                    )}
+                  </Button>
+                  
+                  <WhatsAppContact
+                    product={product}
+                    className="flex-1"
+                  />
+                </div>
                 
-                <WhatsAppContact
-                  product={product}
-                  className="flex-1"
-                />
+                {product.payment_link && (
+                  <PayNowButton 
+                    paymentLink={product.payment_link}
+                    productName={product.name}
+                    className="w-full"
+                  />
+                )}
               </div>
             </div>
           </div>
