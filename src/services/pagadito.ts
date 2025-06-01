@@ -1,3 +1,4 @@
+
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -108,11 +109,11 @@ class PagaditoService {
       // Create a specific transaction ID format
       const simulatedPaymentId = `pgto-${Math.random().toString(36).substring(2, 10)}`;
       
-      // Create the order in our database
+      // Create the order in our database - the orderId should already be a proper UUID
       const { data: order, error } = await supabase
         .from('orders')
         .insert({
-          id: options.orderId,
+          id: options.orderId, // This should now be a proper UUID
           total_amount: options.amount,
           customer_name: options.customerInfo.name,
           customer_email: options.customerInfo.email,

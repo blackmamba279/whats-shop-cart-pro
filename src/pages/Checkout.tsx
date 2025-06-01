@@ -19,7 +19,6 @@ import { toast } from 'sonner';
 import { useCart } from '@/contexts/cart-context';
 import { pagaditoService } from '@/services/pagadito';
 import WhatsAppContact from '@/components/WhatsAppContact';
-import { v4 as uuidv4 } from 'uuid';
 import { supabase } from '@/integrations/supabase/client';
 
 const formSchema = z.object({
@@ -61,7 +60,8 @@ const Checkout = () => {
     setIsLoading(true);
 
     try {
-      const orderId = uuidv4();
+      // Generate a proper UUID for the order
+      const orderId = crypto.randomUUID();
       
       // Create order in database
       const { data: orderData, error: orderError } = await supabase

@@ -45,10 +45,13 @@ const Cart = () => {
   
   const handlePagaditoPayment = async () => {
     try {
+      // Generate a proper UUID for the order
+      const orderId = crypto.randomUUID();
+      
       const result = await pagaditoService.createPayment({
         amount: total,
         description: `Order with ${items.length} items`,
-        orderId: `order-${Date.now()}`,
+        orderId: orderId,
         customerInfo: {
           name: 'Customer',
           email: 'customer@example.com'
