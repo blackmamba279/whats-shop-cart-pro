@@ -1,9 +1,12 @@
+
 import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useCart } from '../contexts/cart-context';
 import { Button } from '../components/ui/button';
 import WhatsAppContact from '../components/WhatsAppContact';
-import { Minus, Plus, ShoppingCart, Trash2 } from 'lucide-react';
+import { Minus, Plus, ShoppingCart, Trash2, CreditCard } from 'lucide-react';
+import { pagaditoService } from '../services/pagadito';
+import { toast } from 'sonner';
 
 const Cart = () => {
   const { items, updateQuantity, removeItem, total, clearCart } = useCart();
@@ -39,6 +42,30 @@ const Cart = () => {
       }
     };
   }, []);
+  
+  const handlePagaditoPayment = async () => {
+    try {
+      const result = await pagaditoService.createPayment({
+        amount: total,
+        description: `Order with ${items.length} items`,
+        orderId: `order-${Date.now()}`,
+        customerInfo: {
+          name: 'Customer',
+          email: 'customer@example.com'
+        }
+      });
+      
+      if (result.success && result.data) {
+        // Redirect to Pagadito payment page
+        window.open(result.data.paymentUrl, '_blank');
+      } else {
+        toast.error(result.error || 'Payment processing failed');
+      }
+    } catch (error) {
+      console.error('Payment error:', error);
+      toast.error('Payment processing failed');
+    }
+  };
   
   if (items.length === 0) {
     return (
@@ -163,8 +190,16 @@ const Cart = () => {
                 Checkout via WhatsApp
               </WhatsAppContact>
               
+              <Button 
+                onClick={handlePagaditoPayment}
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+              >
+                <CreditCard className="mr-2 h-4 w-4" />
+                Pay with Pagadito
+              </Button>
+              
               <p className="text-xs text-gray-500 text-center">
-                By proceeding, you'll be connected with our team on WhatsApp to complete your order
+                By proceeding, you'll be connected with our team on WhatsApp to complete your order or redirected to secure payment
               </p>
               
               {/* Pagadito Merchant Certification */}

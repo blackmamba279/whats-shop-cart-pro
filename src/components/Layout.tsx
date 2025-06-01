@@ -1,9 +1,32 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import Navbar from './Navbar';
 import { Outlet } from 'react-router-dom';
+import WhatsAppContact from './WhatsAppContact';
 
 const Layout = () => {
+  useEffect(() => {
+    // Load Pagadito certification script for footer
+    const timer = setTimeout(() => {
+      const existingScript = document.querySelector('script[src*="comercios.pagadito.com/validate"]');
+      if (!existingScript) {
+        const script = document.createElement('script');
+        script.type = 'text/javascript';
+        script.src = 'https://comercios.pagadito.com/validate/index.php?merchant=6034e62d2d08eff1a3e05dd0491fbaec&size=s&_idioma=en';
+        script.async = true;
+        
+        const footerCertification = document.getElementById('footer-pagadito-certification');
+        if (footerCertification) {
+          footerCertification.appendChild(script);
+        }
+      }
+    }, 100);
+    
+    return () => {
+      clearTimeout(timer);
+    };
+  }, []);
+
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
@@ -56,14 +79,26 @@ const Layout = () => {
               <p className="text-gray-500">
                 Have questions about our products?
               </p>
-              <WhatsAppContact className="mt-2" size="sm">
+              <WhatsAppContact className="mt-2" size="sm" useDefaultMessage={true}>
                 Chat with us
               </WhatsAppContact>
             </div>
           </div>
           
-          <div className="border-t mt-8 pt-8 text-center text-gray-500 text-sm">
-            <p>© {new Date().getFullYear()} WA Shop. All rights reserved.</p>
+          <div className="border-t mt-8 pt-8">
+            <div className="flex flex-col md:flex-row items-center justify-between">
+              <div className="text-center text-gray-500 text-sm mb-4 md:mb-0">
+                <p>© {new Date().getFullYear()} WA Shop. All rights reserved.</p>
+              </div>
+              
+              {/* Certified Pagadito Merchant */}
+              <div className="text-center">
+                <div className="text-xs text-gray-500 mb-2">Certified Pagadito Merchant</div>
+                <div id="footer-pagadito-certification" className="min-h-[40px] flex items-center justify-center">
+                  <div className="text-xs text-gray-400">Loading certification...</div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </footer>
@@ -71,5 +106,4 @@ const Layout = () => {
   );
 };
 
-import WhatsAppContact from './WhatsAppContact';
 export default Layout;

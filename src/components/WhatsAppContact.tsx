@@ -8,13 +8,15 @@ interface WhatsAppContactProps {
   size?: 'default' | 'sm' | 'lg' | 'icon';
   className?: string;
   children?: React.ReactNode;
+  useDefaultMessage?: boolean;
 }
 
 const WhatsAppContact: React.FC<WhatsAppContactProps> = ({ 
   product,
   size = 'default',
   className = '',
-  children
+  children,
+  useDefaultMessage = false
 }) => {
   // Get phone number from localStorage or use default
   const phoneNumber = localStorage.getItem('waPhoneNumber') || '1234567890';
@@ -22,7 +24,7 @@ const WhatsAppContact: React.FC<WhatsAppContactProps> = ({
   const handleWhatsAppClick = () => {
     let message;
     
-    if (product) {
+    if (product && !useDefaultMessage) {
       // Use product message template if available
       const template = localStorage.getItem('waProductMessageTemplate') || 
         'Hello! I am interested in {productName} priced at ${productPrice}.';
@@ -32,7 +34,7 @@ const WhatsAppContact: React.FC<WhatsAppContactProps> = ({
         .replace('{productName}', product.name)
         .replace('{productPrice}', product.price.toString());
     } else {
-      // Use default message if no product
+      // Use default message if no product or useDefaultMessage is true
       message = localStorage.getItem('waDefaultMessage') || 
         'Hello! I am interested in your products.';
     }
