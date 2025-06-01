@@ -22,7 +22,9 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
-    addItem(product);
+    if (product.inStock) {
+      addItem(product);
+    }
   };
 
   const handleImageClick = (e: React.MouseEvent) => {
@@ -44,6 +46,11 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
             {product.originalPrice && (
               <Badge className="absolute top-2 right-2 bg-red-500">
                 {t('sale')}
+              </Badge>
+            )}
+            {!product.inStock && (
+              <Badge className="absolute top-2 left-2 bg-gray-500">
+                Out of Stock
               </Badge>
             )}
           </div>
@@ -77,13 +84,15 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
           
           <CardFooter className="p-4 pt-0 flex flex-col gap-2">
             <Button 
-              className="w-full bg-whatsapp hover:bg-whatsapp-dark text-white"
+              className={`w-full ${product.inStock ? 'bg-whatsapp hover:bg-whatsapp-dark text-white' : 'bg-gray-400 text-gray-600 cursor-not-allowed'}`}
               onClick={handleAddToCart}
+              disabled={!product.inStock}
             >
-              <ShoppingCart className="mr-2 h-4 w-4" /> {t('addToCart')}
+              <ShoppingCart className="mr-2 h-4 w-4" /> 
+              {product.inStock ? t('addToCart') : 'Out of Stock'}
             </Button>
             
-            {product.payment_link && (
+            {product.payment_link && product.inStock && (
               <div onClick={(e) => e.preventDefault()}>
                 <PayNowButton 
                   paymentLink={product.payment_link}

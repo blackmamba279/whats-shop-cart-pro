@@ -98,10 +98,12 @@ const ProductDetail = () => {
                 <div className="flex flex-col sm:flex-row gap-2">
                   <Button 
                     onClick={() => addItem(product)}
-                    className="flex-1 bg-gray-900 hover:bg-gray-700 text-white"
+                    className={`flex-1 ${product.inStock ? 'bg-gray-900 hover:bg-gray-700 text-white' : 'bg-gray-400 text-gray-600 cursor-not-allowed'}`}
                     disabled={!product.inStock}
                   >
-                    {isInCart ? (
+                    {!product.inStock ? (
+                      'Out of Stock'
+                    ) : isInCart ? (
                       <>
                         <Check className="mr-2 h-4 w-4" /> Added to Cart
                       </>
@@ -118,7 +120,7 @@ const ProductDetail = () => {
                   />
                 </div>
                 
-                {product.payment_link && (
+                {product.payment_link && product.inStock && (
                   <PayNowButton 
                     paymentLink={product.payment_link}
                     productName={product.name}
