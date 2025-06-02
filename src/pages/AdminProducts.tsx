@@ -23,6 +23,7 @@ interface Product {
   featured: boolean;
   rating: number;
   payment_link?: string;
+  stock_quantity: number;
   created_at?: string;
   updated_at?: string;
 }
@@ -58,7 +59,8 @@ const AdminProducts = () => {
     in_stock: true,
     featured: false,
     rating: 5,
-    payment_link: ''
+    payment_link: '',
+    stock_quantity: 0
   });
 
   // Load products from Supabase
@@ -106,6 +108,8 @@ const AdminProducts = () => {
       setFormData({ ...formData, [name]: checkboxInput.checked });
     } else if (name === 'price' || name === 'original_price' || name === 'rating') {
       setFormData({ ...formData, [name]: parseFloat(value) || 0 });
+    } else if (name === 'stock_quantity') {
+      setFormData({ ...formData, [name]: parseInt(value) || 0 });
     } else {
       setFormData({ ...formData, [name]: value });
     }
@@ -165,7 +169,8 @@ const AdminProducts = () => {
       in_stock: true,
       featured: false,
       rating: 5,
-      payment_link: ''
+      payment_link: '',
+      stock_quantity: 0
     });
     setCurrentProduct(null);
     setEditMode(false);
@@ -275,6 +280,7 @@ const AdminProducts = () => {
           featured: formData.featured ?? false,
           rating: formData.rating || 5,
           payment_link: formData.payment_link || '',
+          stock_quantity: formData.stock_quantity || 0,
           image_url: ''
         };
 
@@ -341,6 +347,7 @@ const AdminProducts = () => {
                   <TableHead>Category</TableHead>
                   <TableHead>Price</TableHead>
                   <TableHead>Stock</TableHead>
+                  <TableHead>Stock Qty</TableHead>
                   <TableHead>Pay Now</TableHead>
                   <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
@@ -348,7 +355,7 @@ const AdminProducts = () => {
               <TableBody>
                 {filteredProducts.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={7} className="text-center py-10 text-gray-500">
+                    <TableCell colSpan={8} className="text-center py-10 text-gray-500">
                       No products found
                     </TableCell>
                   </TableRow>
@@ -368,10 +375,15 @@ const AdminProducts = () => {
                       <TableCell>{getCategoryName(product.category_id)}</TableCell>
                       <TableCell>${product.price}</TableCell>
                       <TableCell>
-                        <span className={`px-2 py-1 rounded-full text-xs ${product.in_stock ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
-                          {product.in_stock ? 'In Stock' : 'Out of Stock'}
+                        <span className={`px-2 py-1 rounded-full text-xs ${
+                          product.in_stock && product.stock_quantity > 0 
+                            ? 'bg-green-100 text-green-800' 
+                            : 'bg-red-100 text-red-800'
+                        }`}>
+                          {product.in_stock && product.stock_quantity > 0 ? 'In Stock' : 'Out of Stock'}
                         </span>
                       </TableCell>
+                      <TableCell>{product.stock_quantity}</TableCell>
                       <TableCell>
                         {product.payment_link ? (
                           <span className="px-2 py-1 rounded-full text-xs bg-blue-100 text-blue-800">
@@ -430,7 +442,7 @@ const AdminProducts = () => {
                 <Input
                   id="name"
                   name="name"
-                  value={formData.name}
+                  value={formData.name || ''}
                   onChange={handleInputChange}
                   required
                 />
@@ -456,7 +468,7 @@ const AdminProducts = () => {
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-3 gap-4">
               <div className="space-y-2">
                 <label htmlFor="price" className="text-sm font-medium">Price ($) *</label>
                 <Input
@@ -465,7 +477,7 @@ const AdminProducts = () => {
                   type="number"
                   step="0.01"
                   min="0"
-                  value={formData.price}
+                  value={formData.price || ''}
                   onChange={handleInputChange}
                   required
                 />
@@ -479,8 +491,21 @@ const AdminProducts = () => {
                   type="number"
                   step="0.01"
                   min="0"
-                  value={formData.original_price}
+                  value={formData.original_price || ''}
                   onChange={handleInputChange}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <label htmlFor="stock_quantity" className="text-sm font-medium">Stock Quantity *</label>
+                <Input
+                  id="stock_quantity"
+                  name="stock_quantity"
+                  type="number"
+                  min="0"
+                  value={formData.stock_quantity || ''}
+                  onChange={handleInputChange}
+                  required
                 />
               </div>
             </div>
@@ -491,7 +516,7 @@ const AdminProducts = () => {
                 id="description"
                 name="description"
                 rows={3}
-                value={formData.description}
+                value={formData.description || ''}
                 onChange={handleInputChange}
                 required
               />
@@ -504,7 +529,7 @@ const AdminProducts = () => {
                 name="payment_link"
                 type="url"
                 placeholder="https://pagadito.com/..."
-                value={formData.payment_link}
+                value={formData.payment_link || ''}
                 onChange={handleInputChange}
               />
               <p className="text-xs text-gray-500">Enter the direct Pagadito payment URL (pagalink) for this product</p>
@@ -582,7 +607,7 @@ const AdminProducts = () => {
                 step="0.1"
                 min="0"
                 max="5"
-                value={formData.rating}
+                value={formData.rating || ''}
                 onChange={handleInputChange}
               />
             </div>
