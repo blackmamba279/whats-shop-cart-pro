@@ -16,12 +16,18 @@ interface ProductCardProps {
 }
 
 const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
-  const { addItem } = useCart();
+  const { addItem, getProductQuantityInCart } = useCart();
   const { t } = useLanguage();
   const [isImageModalOpen, setIsImageModalOpen] = useState(false);
   
-  // Check if product is in stock based on both inStock flag and stock quantity
-  const isInStock = product.inStock && (product.stock_quantity || 0) > 0;
+  // Get quantity in cart for this product
+  const quantityInCart = getProductQuantityInCart(product.id);
+  
+  // Calculate available stock (total stock minus what's in cart)
+  const availableStock = (product.stock_quantity || 0) - quantityInCart;
+  
+  // Check if product is in stock based on available stock
+  const isInStock = product.inStock && availableStock > 0;
   
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -84,11 +90,12 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
               )}
             </div>
             
-            {product.stock_quantity !== undefined && (
-              <div className="text-xs text-gray-500 mt-1">
-                Stock: {product.stock_quantity} units
-              </div>
-            )}
+            <div className="text-xs text-gray-500 mt-1">
+              Stock: {availableStock} available
+              {quantityInCart > 0 && (
+                <span className="text-blue-600 ml-2">({quantityInCart} in cart)</span>
+              )}
+            </div>
           </CardContent>
           
           <CardFooter className="p-4 pt-0 flex flex-col gap-2">

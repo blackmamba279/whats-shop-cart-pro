@@ -13,14 +13,11 @@ import ImageModal from '../components/ImageModal';
 const ProductDetail = () => {
   const { productId } = useParams<{ productId: string }>();
   const product = getProductById(productId || '');
-  const { addItem, items } = useCart();
+  const { addItem, items, getProductQuantityInCart } = useCart();
   const [isImageModalOpen, setIsImageModalOpen] = useState(false);
   
   const isInCart = items.some(item => item.id === product?.id);
   
-  // Check if product is in stock based on both inStock flag and stock quantity
-  const isInStock = product?.inStock && (product?.stock_quantity || 0) > 0;
-
   if (!product) {
     return (
       <div className="container py-8 px-4 md:px-6 text-center">
@@ -32,6 +29,15 @@ const ProductDetail = () => {
       </div>
     );
   }
+
+  // Get quantity in cart for this product
+  const quantityInCart = getProductQuantityInCart(product.id);
+  
+  // Calculate available stock (total stock minus what's in cart)
+  const availableStock = (product.stock_quantity || 0) - quantityInCart;
+  
+  // Check if product is in stock based on available stock
+  const isInStock = product.inStock && availableStock > 0;
 
   return (
     <>
@@ -95,11 +101,12 @@ const ProductDetail = () => {
                 ) : (
                   <span className="text-red-500">Out of Stock</span>
                 )}
-                {product.stock_quantity !== undefined && (
-                  <div className="mt-1">
-                    Stock: {product.stock_quantity} units available
-                  </div>
-                )}
+                <div className="mt-1">
+                  Stock: {availableStock} units available
+                  {quantityInCart > 0 && (
+                    <span className="text-blue-600 ml-2">({quantityInCart} in cart)</span>
+                  )}
+                </div>
               </div>
               
               <div className="flex flex-col gap-2">
@@ -113,7 +120,7 @@ const ProductDetail = () => {
                       'Out of Stock'
                     ) : isInCart ? (
                       <>
-                        <Check className="mr-2 h-4 w-4" /> Added to Cart
+                        <ShoppingCart className="mr-2 h-4 w-4" /> Add More
                       </>
                     ) : (
                       <>

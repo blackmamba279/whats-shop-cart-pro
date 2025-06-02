@@ -17,6 +17,7 @@ interface Product {
   featured: boolean;
   rating: number;
   stock_quantity: number;
+  payment_link?: string;
 }
 
 interface Category {
@@ -86,7 +87,8 @@ const Products = () => {
       inStock: product.in_stock,
       featured: product.featured,
       rating: product.rating,
-      stock_quantity: product.stock_quantity
+      stock_quantity: product.stock_quantity,
+      payment_link: product.payment_link
     };
   });
 

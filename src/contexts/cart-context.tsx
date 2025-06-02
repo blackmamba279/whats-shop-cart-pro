@@ -15,6 +15,7 @@ interface CartContextType {
   clearCart: () => void;
   itemCount: number;
   total: number;
+  getProductQuantityInCart: (productId: string) => number;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
@@ -39,9 +40,22 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     localStorage.setItem('cart', JSON.stringify(items));
   }, [items]);
 
+  const getProductQuantityInCart = (productId: string): number => {
+    const item = items.find(item => item.id === productId);
+    return item ? item.quantity : 0;
+  };
+
   const addItem = (product: Product) => {
     setItems(prevItems => {
       const existingItem = prevItems.find(item => item.id === product.id);
+      const currentQuantityInCart = existingItem ? existingItem.quantity : 0;
+      const availableStock = (product.stock_quantity || 0) - currentQuantityInCart;
+      
+      // Check if we can add more of this product
+      if (availableStock <= 0) {
+        toast.error('No more stock available for this product');
+        return prevItems;
+      }
       
       if (existingItem) {
         toast.success('Item quantity increased');
@@ -95,7 +109,8 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
         updateQuantity, 
         clearCart, 
         itemCount, 
-        total 
+        total,
+        getProductQuantityInCart
       }}
     >
       {children}
