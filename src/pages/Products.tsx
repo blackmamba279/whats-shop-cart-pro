@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import ProductCard from '../components/ProductCard';
 import { supabase } from '@/integrations/supabase/client';
@@ -15,6 +16,7 @@ interface Product {
   in_stock: boolean;
   featured: boolean;
   rating: number;
+  stock_quantity: number;
 }
 
 interface Category {
@@ -83,7 +85,8 @@ const Products = () => {
       category: category?.name || 'Unknown',
       inStock: product.in_stock,
       featured: product.featured,
-      rating: product.rating
+      rating: product.rating,
+      stock_quantity: product.stock_quantity
     };
   });
 

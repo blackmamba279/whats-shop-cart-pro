@@ -372,6 +372,7 @@ export type Database = {
           payment_link: string | null
           price: number
           rating: number | null
+          stock_quantity: number
           updated_at: string | null
         }
         Insert: {
@@ -387,6 +388,7 @@ export type Database = {
           payment_link?: string | null
           price: number
           rating?: number | null
+          stock_quantity?: number
           updated_at?: string | null
         }
         Update: {
@@ -402,6 +404,7 @@ export type Database = {
           payment_link?: string | null
           price?: number
           rating?: number | null
+          stock_quantity?: number
           updated_at?: string | null
         }
         Relationships: [

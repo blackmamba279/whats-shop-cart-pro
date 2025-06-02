@@ -10,6 +10,7 @@ export interface Product {
   featured?: boolean;
   rating: number;
   payment_link?: string;
+  stock_quantity?: number;
 }
 
 export interface Category {
@@ -57,6 +58,7 @@ export const products: Product[] = [
     inStock: true,
     featured: true,
     rating: 4.9,
+    stock_quantity: 15,
   },
   {
     id: "samsung-galaxy-s21",
@@ -68,6 +70,7 @@ export const products: Product[] = [
     category: "smartphones",
     inStock: true,
     rating: 4.7,
+    stock_quantity: 8,
   },
   {
     id: "macbook-pro-m1",
@@ -79,6 +82,7 @@ export const products: Product[] = [
     inStock: true,
     featured: true,
     rating: 4.8,
+    stock_quantity: 5,
   },
   {
     id: "dell-xps-13",
@@ -90,6 +94,7 @@ export const products: Product[] = [
     category: "laptops",
     inStock: true,
     rating: 4.6,
+    stock_quantity: 12,
   },
   {
     id: "airpods-pro",
@@ -100,6 +105,7 @@ export const products: Product[] = [
     category: "accessories",
     inStock: true,
     rating: 4.7,
+    stock_quantity: 0, // This will make the product out of stock
   },
   {
     id: "samsung-galaxy-watch4",
@@ -110,6 +116,7 @@ export const products: Product[] = [
     category: "wearables",
     inStock: true,
     rating: 4.5,
+    stock_quantity: 7,
   },
   {
     id: "logitech-mx-master-3",
@@ -120,6 +127,7 @@ export const products: Product[] = [
     category: "accessories",
     inStock: true,
     rating: 4.8,
+    stock_quantity: 20,
   },
   {
     id: "apple-watch-series-7",
@@ -131,6 +139,7 @@ export const products: Product[] = [
     inStock: true,
     featured: true,
     rating: 4.9,
+    stock_quantity: 3,
   },
 ];
 

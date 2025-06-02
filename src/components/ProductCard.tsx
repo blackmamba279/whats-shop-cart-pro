@@ -20,9 +20,12 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   const { t } = useLanguage();
   const [isImageModalOpen, setIsImageModalOpen] = useState(false);
   
+  // Check if product is in stock based on both inStock flag and stock quantity
+  const isInStock = product.inStock && (product.stock_quantity || 0) > 0;
+  
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
-    if (product.inStock) {
+    if (isInStock) {
       addItem(product);
     }
   };
@@ -48,7 +51,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
                 {t('sale')}
               </Badge>
             )}
-            {!product.inStock && (
+            {!isInStock && (
               <Badge className="absolute top-2 left-2 bg-gray-500">
                 Out of Stock
               </Badge>
@@ -80,19 +83,25 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
                 </span>
               )}
             </div>
+            
+            {product.stock_quantity !== undefined && (
+              <div className="text-xs text-gray-500 mt-1">
+                Stock: {product.stock_quantity} units
+              </div>
+            )}
           </CardContent>
           
           <CardFooter className="p-4 pt-0 flex flex-col gap-2">
             <Button 
-              className={`w-full ${product.inStock ? 'bg-whatsapp hover:bg-whatsapp-dark text-white' : 'bg-gray-400 text-gray-600 cursor-not-allowed'}`}
+              className={`w-full ${isInStock ? 'bg-whatsapp hover:bg-whatsapp-dark text-white' : 'bg-gray-400 text-gray-600 cursor-not-allowed'}`}
               onClick={handleAddToCart}
-              disabled={!product.inStock}
+              disabled={!isInStock}
             >
               <ShoppingCart className="mr-2 h-4 w-4" /> 
-              {product.inStock ? t('addToCart') : 'Out of Stock'}
+              {isInStock ? t('addToCart') : 'Out of Stock'}
             </Button>
             
-            {product.payment_link && product.inStock && (
+            {product.payment_link && isInStock && (
               <div onClick={(e) => e.preventDefault()}>
                 <PayNowButton 
                   paymentLink={product.payment_link}

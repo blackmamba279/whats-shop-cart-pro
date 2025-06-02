@@ -17,6 +17,9 @@ const ProductDetail = () => {
   const [isImageModalOpen, setIsImageModalOpen] = useState(false);
   
   const isInCart = items.some(item => item.id === product?.id);
+  
+  // Check if product is in stock based on both inStock flag and stock quantity
+  const isInStock = product?.inStock && (product?.stock_quantity || 0) > 0;
 
   if (!product) {
     return (
@@ -85,12 +88,17 @@ const ProductDetail = () => {
             
             <div className="space-y-2">
               <div className="text-sm text-gray-500">
-                {product.inStock ? (
+                {isInStock ? (
                   <span className="text-green-500 flex items-center">
                     <Check className="h-4 w-4 mr-1" /> In Stock
                   </span>
                 ) : (
                   <span className="text-red-500">Out of Stock</span>
+                )}
+                {product.stock_quantity !== undefined && (
+                  <div className="mt-1">
+                    Stock: {product.stock_quantity} units available
+                  </div>
                 )}
               </div>
               
@@ -98,10 +106,10 @@ const ProductDetail = () => {
                 <div className="flex flex-col sm:flex-row gap-2">
                   <Button 
                     onClick={() => addItem(product)}
-                    className={`flex-1 ${product.inStock ? 'bg-gray-900 hover:bg-gray-700 text-white' : 'bg-gray-400 text-gray-600 cursor-not-allowed'}`}
-                    disabled={!product.inStock}
+                    className={`flex-1 ${isInStock ? 'bg-gray-900 hover:bg-gray-700 text-white' : 'bg-gray-400 text-gray-600 cursor-not-allowed'}`}
+                    disabled={!isInStock}
                   >
-                    {!product.inStock ? (
+                    {!isInStock ? (
                       'Out of Stock'
                     ) : isInCart ? (
                       <>
@@ -120,7 +128,7 @@ const ProductDetail = () => {
                   />
                 </div>
                 
-                {product.payment_link && product.inStock && (
+                {product.payment_link && isInStock && (
                   <PayNowButton 
                     paymentLink={product.payment_link}
                     productName={product.name}
