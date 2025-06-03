@@ -36,8 +36,11 @@ const ProductDetail = () => {
   // Calculate available stock (total stock minus what's in cart)
   const availableStock = (product.stock_quantity || 0) - quantityInCart;
   
-  // Check if product is in stock based on available stock
-  const isInStock = product.inStock && availableStock > 0;
+  // Check if product is in stock - only disable if no stock available OR explicitly marked as out of stock
+  const isInStock = product.inStock && (product.stock_quantity || 0) > 0;
+  
+  // Show button as disabled only when no stock available at all
+  const shouldDisableButton = !isInStock || availableStock <= 0;
 
   return (
     <>
@@ -107,16 +110,22 @@ const ProductDetail = () => {
                     <span className="text-blue-600 ml-2">({quantityInCart} in cart)</span>
                   )}
                 </div>
+                {product.size && (
+                  <div className="mt-2">
+                    <span className="font-medium text-gray-700">Talla: </span>
+                    <span className="text-gray-600">{product.size}</span>
+                  </div>
+                )}
               </div>
               
               <div className="flex flex-col gap-2">
                 <div className="flex flex-col sm:flex-row gap-2">
                   <Button 
                     onClick={() => addItem(product)}
-                    className={`flex-1 ${isInStock ? 'bg-gray-900 hover:bg-gray-700 text-white' : 'bg-gray-400 text-gray-600 cursor-not-allowed'}`}
-                    disabled={!isInStock}
+                    className={`flex-1 ${shouldDisableButton ? 'bg-gray-400 text-gray-600 cursor-not-allowed' : 'bg-gray-900 hover:bg-gray-700 text-white'}`}
+                    disabled={shouldDisableButton}
                   >
-                    {!isInStock ? (
+                    {shouldDisableButton ? (
                       'Out of Stock'
                     ) : isInCart ? (
                       <>
@@ -135,7 +144,7 @@ const ProductDetail = () => {
                   />
                 </div>
                 
-                {product.payment_link && isInStock && (
+                {product.payment_link && !shouldDisableButton && (
                   <PayNowButton 
                     paymentLink={product.payment_link}
                     productName={product.name}

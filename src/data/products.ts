@@ -7,10 +7,11 @@ export interface Product {
   image: string;
   category: string;
   inStock: boolean;
-  featured?: boolean;
+  featured: boolean;
   rating: number;
-  payment_link?: string;
   stock_quantity?: number;
+  payment_link?: string;
+  size?: string; // New field for product size
 }
 
 export interface Category {

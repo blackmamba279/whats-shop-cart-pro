@@ -18,6 +18,7 @@ interface Product {
   rating: number;
   stock_quantity: number;
   payment_link?: string;
+  size?: string; // Add size field
 }
 
 interface Category {
@@ -88,7 +89,8 @@ const Products = () => {
       featured: product.featured,
       rating: product.rating,
       stock_quantity: product.stock_quantity,
-      payment_link: product.payment_link
+      payment_link: product.payment_link,
+      size: product.size // Include size field
     };
   });
 

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import ProductCard from '../components/ProductCard';
@@ -19,6 +18,7 @@ interface Product {
   in_stock: boolean;
   featured: boolean;
   rating: number;
+  size?: string; // Add size field
 }
 
 interface Category {
@@ -83,7 +83,8 @@ const CategoryProducts = () => {
     category: category?.name || 'Unknown',
     inStock: product.in_stock,
     featured: product.featured,
-    rating: product.rating
+    rating: product.rating,
+    size: product.size // Include size field
   }));
 
   if (isLoading) {

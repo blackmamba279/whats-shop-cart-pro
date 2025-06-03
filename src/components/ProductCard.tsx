@@ -26,12 +26,12 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   // Calculate available stock (total stock minus what's in cart)
   const availableStock = (product.stock_quantity || 0) - quantityInCart;
   
-  // Check if product is in stock based on available stock
-  const isInStock = product.inStock && availableStock > 0;
+  // Check if product is in stock - only disable if no stock available OR explicitly marked as out of stock
+  const isInStock = product.inStock && (product.stock_quantity || 0) > 0;
   
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
-    if (isInStock) {
+    if (isInStock && availableStock > 0) {
       addItem(product);
     }
   };
@@ -40,6 +40,9 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
     e.preventDefault();
     setIsImageModalOpen(true);
   };
+
+  // Show button as disabled only when no stock available at all
+  const shouldDisableButton = !isInStock || availableStock <= 0;
 
   return (
     <>
@@ -57,7 +60,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
                 {t('sale')}
               </Badge>
             )}
-            {!isInStock && (
+            {shouldDisableButton && (
               <Badge className="absolute top-2 left-2 bg-gray-500">
                 Out of Stock
               </Badge>
@@ -96,19 +99,25 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
                 <span className="text-blue-600 ml-2">({quantityInCart} in cart)</span>
               )}
             </div>
+            
+            {product.size && (
+              <div className="text-xs text-gray-600 mt-1">
+                <span className="font-medium">Talla: </span>{product.size}
+              </div>
+            )}
           </CardContent>
           
           <CardFooter className="p-4 pt-0 flex flex-col gap-2">
             <Button 
-              className={`w-full ${isInStock ? 'bg-whatsapp hover:bg-whatsapp-dark text-white' : 'bg-gray-400 text-gray-600 cursor-not-allowed'}`}
+              className={`w-full ${shouldDisableButton ? 'bg-gray-400 text-gray-600 cursor-not-allowed' : 'bg-whatsapp hover:bg-whatsapp-dark text-white'}`}
               onClick={handleAddToCart}
-              disabled={!isInStock}
+              disabled={shouldDisableButton}
             >
               <ShoppingCart className="mr-2 h-4 w-4" /> 
-              {isInStock ? t('addToCart') : 'Out of Stock'}
+              {shouldDisableButton ? 'Out of Stock' : t('addToCart')}
             </Button>
             
-            {product.payment_link && isInStock && (
+            {product.payment_link && !shouldDisableButton && (
               <div onClick={(e) => e.preventDefault()}>
                 <PayNowButton 
                   paymentLink={product.payment_link}
