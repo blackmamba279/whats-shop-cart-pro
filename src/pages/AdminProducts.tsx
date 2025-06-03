@@ -24,6 +24,7 @@ interface Product {
   rating: number;
   payment_link?: string;
   stock_quantity: number;
+  size?: string;
   created_at?: string;
   updated_at?: string;
 }
@@ -60,7 +61,8 @@ const AdminProducts = () => {
     featured: false,
     rating: 5,
     payment_link: '',
-    stock_quantity: 0
+    stock_quantity: 0,
+    size: ''
   });
 
   // Load products from Supabase
@@ -170,7 +172,8 @@ const AdminProducts = () => {
       featured: false,
       rating: 5,
       payment_link: '',
-      stock_quantity: 0
+      stock_quantity: 0,
+      size: ''
     });
     setCurrentProduct(null);
     setEditMode(false);
@@ -281,6 +284,7 @@ const AdminProducts = () => {
           rating: formData.rating || 5,
           payment_link: formData.payment_link || '',
           stock_quantity: formData.stock_quantity || 0,
+          size: formData.size || '',
           image_url: ''
         };
 
@@ -346,6 +350,7 @@ const AdminProducts = () => {
                   <TableHead>Name</TableHead>
                   <TableHead>Category</TableHead>
                   <TableHead>Price</TableHead>
+                  <TableHead>Size</TableHead>
                   <TableHead>Stock</TableHead>
                   <TableHead>Stock Qty</TableHead>
                   <TableHead>Pay Now</TableHead>
@@ -355,7 +360,7 @@ const AdminProducts = () => {
               <TableBody>
                 {filteredProducts.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={8} className="text-center py-10 text-gray-500">
+                    <TableCell colSpan={9} className="text-center py-10 text-gray-500">
                       No products found
                     </TableCell>
                   </TableRow>
@@ -374,6 +379,7 @@ const AdminProducts = () => {
                       <TableCell className="font-medium">{product.name}</TableCell>
                       <TableCell>{getCategoryName(product.category_id)}</TableCell>
                       <TableCell>${product.price}</TableCell>
+                      <TableCell>{product.size || 'N/A'}</TableCell>
                       <TableCell>
                         <span className={`px-2 py-1 rounded-full text-xs ${
                           product.in_stock && product.stock_quantity > 0 
@@ -508,6 +514,18 @@ const AdminProducts = () => {
                   required
                 />
               </div>
+            </div>
+
+            <div className="space-y-2">
+              <label htmlFor="size" className="text-sm font-medium">Size</label>
+              <Input
+                id="size"
+                name="size"
+                placeholder="e.g., S, M, L, XL or specific measurements"
+                value={formData.size || ''}
+                onChange={handleInputChange}
+              />
+              <p className="text-xs text-gray-500">Optional: Enter product size (clothing size, dimensions, etc.)</p>
             </div>
             
             <div className="space-y-2">
