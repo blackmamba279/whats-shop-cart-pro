@@ -22,6 +22,7 @@ import AdminLogin from "./pages/AdminLogin";
 import AdminLayout from "./components/AdminLayout";
 import AdminProducts from "./pages/AdminProducts";
 import AdminCategories from "./pages/AdminCategories";
+import AdminReceipts from "./pages/AdminReceipts";
 import AdminWhatsApp from "./pages/AdminWhatsApp";
 import AdminPagadito from "./pages/AdminPagadito";
 import AdminRoute from "./components/AdminRoute";
@@ -57,6 +58,7 @@ function App() {
                 }>
                   <Route path="products" element={<AdminProducts />} />
                   <Route path="categories" element={<AdminCategories />} />
+                  <Route path="receipts" element={<AdminReceipts />} />
                   <Route path="whatsapp" element={<AdminWhatsApp />} />
                   <Route path="pagadito" element={<AdminPagadito />} />
                 </Route>
