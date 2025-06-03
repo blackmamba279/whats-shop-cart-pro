@@ -1,3 +1,4 @@
+
 export interface Product {
   id: string;
   name: string;
@@ -70,6 +71,7 @@ export const products: Product[] = [
     image: "/placeholder.svg",
     category: "smartphones",
     inStock: true,
+    featured: false,
     rating: 4.7,
     stock_quantity: 8,
   },
@@ -94,6 +96,7 @@ export const products: Product[] = [
     image: "/placeholder.svg",
     category: "laptops",
     inStock: true,
+    featured: false,
     rating: 4.6,
     stock_quantity: 12,
   },
@@ -105,6 +108,7 @@ export const products: Product[] = [
     image: "/placeholder.svg",
     category: "accessories",
     inStock: true,
+    featured: false,
     rating: 4.7,
     stock_quantity: 0, // This will make the product out of stock
   },
@@ -116,6 +120,7 @@ export const products: Product[] = [
     image: "/placeholder.svg",
     category: "wearables",
     inStock: true,
+    featured: false,
     rating: 4.5,
     stock_quantity: 7,
   },
@@ -127,6 +132,7 @@ export const products: Product[] = [
     image: "/placeholder.svg",
     category: "accessories",
     inStock: true,
+    featured: false,
     rating: 4.8,
     stock_quantity: 20,
   },
