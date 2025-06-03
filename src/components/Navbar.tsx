@@ -26,7 +26,7 @@ const Navbar = () => {
               <path d="M16 16v.01"></path>
             </svg>
           </div>
-          <span className="font-bold text-xl">BoutiqueMG</span>
+          <span className="font-bold text-xl">BMG Shop Pro</span>
         </Link>
         
         <nav className="hidden md:flex items-center gap-6">

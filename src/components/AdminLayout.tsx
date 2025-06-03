@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Link, Outlet, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -18,7 +17,7 @@ const AdminLayout = () => {
     <div className="min-h-screen flex flex-col">
       <header className="bg-whatsapp text-white shadow-md py-4">
         <div className="container flex justify-between items-center">
-          <h1 className="text-xl font-bold">BoutiqueMG Admin</h1>
+          <h1 className="text-xl font-bold">BMG Shop Pro Admin</h1>
           <div className="flex items-center gap-2">
             <Link to="/products">
               <Button variant="ghost" className="text-white hover:text-white/80">
