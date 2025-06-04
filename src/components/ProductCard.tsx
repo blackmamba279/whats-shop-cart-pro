@@ -126,7 +126,6 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
                   paymentLink={product.payment_link}
                   productName={product.name}
                   className="w-full text-xs sm:text-sm"
-                  size="sm"
                 />
               </div>
             )}
