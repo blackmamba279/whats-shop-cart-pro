@@ -26,7 +26,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   // Calculate available stock (total stock minus what's in cart)
   const availableStock = (product.stock_quantity || 0) - quantityInCart;
   
-  // Check if product is in stock - only disable if no stock available OR explicitly marked as out of stock
+  // Check if product is in stock - ensure both inStock flag and stock_quantity are considered
   const isInStock = product.inStock && (product.stock_quantity || 0) > 0;
   
   const handleAddToCart = (e: React.MouseEvent) => {
@@ -44,6 +44,8 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   // Show button as disabled only when no stock available at all
   const shouldDisableButton = !isInStock || availableStock <= 0;
 
+  console.log(`Product ${product.name}: inStock=${product.inStock}, stock_quantity=${product.stock_quantity}, isInStock=${isInStock}, shouldDisableButton=${shouldDisableButton}`);
+
   return (
     <>
       <Link to={`/product/${product.id}`}>
@@ -56,23 +58,23 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
               onClick={handleImageClick}
             />
             {product.originalPrice && (
-              <Badge className="absolute top-2 right-2 bg-red-500">
+              <Badge className="absolute top-2 right-2 bg-red-500 text-xs">
                 {t('sale')}
               </Badge>
             )}
             {shouldDisableButton && (
-              <Badge className="absolute top-2 left-2 bg-gray-500">
+              <Badge className="absolute top-2 left-2 bg-gray-500 text-xs">
                 Out of Stock
               </Badge>
             )}
           </div>
           
-          <CardContent className="p-4">
+          <CardContent className="p-3 sm:p-4">
             <div className="flex items-center mb-2">
               {Array.from({ length: 5 }).map((_, index) => (
                 <Star 
                   key={index}
-                  className={`w-4 h-4 ${
+                  className={`w-3 h-3 sm:w-4 sm:h-4 ${
                     index < Math.floor(product.rating) 
                       ? 'text-yellow-400 fill-yellow-400' 
                       : 'text-gray-300'
@@ -82,12 +84,12 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
               <span className="text-xs text-gray-500 ml-1">({product.rating})</span>
             </div>
             
-            <h3 className="font-medium text-lg line-clamp-1">{product.name}</h3>
+            <h3 className="font-medium text-sm sm:text-lg line-clamp-2 mb-2">{product.name}</h3>
             
             <div className="flex items-center gap-2 mt-1">
-              <span className="font-bold text-lg">${product.price.toFixed(2)}</span>
+              <span className="font-bold text-base sm:text-lg">${product.price.toFixed(2)}</span>
               {product.originalPrice && (
-                <span className="text-sm text-gray-400 line-through">
+                <span className="text-xs sm:text-sm text-gray-400 line-through">
                   ${product.originalPrice.toFixed(2)}
                 </span>
               )}
@@ -107,13 +109,14 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
             )}
           </CardContent>
           
-          <CardFooter className="p-4 pt-0 flex flex-col gap-2">
+          <CardFooter className="p-3 sm:p-4 pt-0 flex flex-col gap-2">
             <Button 
-              className={`w-full ${shouldDisableButton ? 'bg-gray-400 text-gray-600 cursor-not-allowed' : 'bg-whatsapp hover:bg-whatsapp-dark text-white'}`}
+              className={`w-full text-xs sm:text-sm ${shouldDisableButton ? 'bg-gray-400 text-gray-600 cursor-not-allowed' : 'bg-whatsapp hover:bg-whatsapp-dark text-white'}`}
               onClick={handleAddToCart}
               disabled={shouldDisableButton}
+              size="sm"
             >
-              <ShoppingCart className="mr-2 h-4 w-4" /> 
+              <ShoppingCart className="mr-1 sm:mr-2 h-3 w-3 sm:h-4 sm:w-4" /> 
               {shouldDisableButton ? 'Out of Stock' : t('addToCart')}
             </Button>
             
@@ -122,7 +125,8 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
                 <PayNowButton 
                   paymentLink={product.payment_link}
                   productName={product.name}
-                  className="w-full"
+                  className="w-full text-xs sm:text-sm"
+                  size="sm"
                 />
               </div>
             )}

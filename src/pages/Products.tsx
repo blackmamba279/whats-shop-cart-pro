@@ -18,7 +18,7 @@ interface Product {
   rating: number;
   stock_quantity: number;
   payment_link?: string;
-  size?: string; // Add size field
+  size?: string;
 }
 
 interface Category {
@@ -41,6 +41,7 @@ const Products = () => {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
+      console.log('Products loaded:', data);
       setProducts(data || []);
     } catch (error) {
       console.error('Error loading products:', error);
@@ -72,6 +73,35 @@ const Products = () => {
     };
 
     loadData();
+
+    // Set up real-time subscription for products
+    const productsSubscription = supabase
+      .channel('products-changes')
+      .on('postgres_changes', 
+        { event: '*', schema: 'public', table: 'products' },
+        () => {
+          console.log('Products changed, reloading...');
+          loadProducts();
+        }
+      )
+      .subscribe();
+
+    // Set up real-time subscription for categories
+    const categoriesSubscription = supabase
+      .channel('categories-changes')
+      .on('postgres_changes', 
+        { event: '*', schema: 'public', table: 'categories' },
+        () => {
+          console.log('Categories changed, reloading...');
+          loadCategories();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(productsSubscription);
+      supabase.removeChannel(categoriesSubscription);
+    };
   }, []);
 
   // Convert Supabase product format to match the existing ProductCard component
@@ -90,15 +120,15 @@ const Products = () => {
       rating: product.rating,
       stock_quantity: product.stock_quantity,
       payment_link: product.payment_link,
-      size: product.size // Include size field
+      size: product.size
     };
   });
 
   if (isLoading) {
     return (
-      <div className="container py-8 px-4 md:px-6">
-        <h1 className="text-3xl font-bold mb-8">{t('allProducts')}</h1>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+      <div className="container py-4 sm:py-8 px-4 md:px-6">
+        <h1 className="text-2xl sm:text-3xl font-bold mb-6 sm:mb-8">{t('allProducts')}</h1>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
           {[...Array(8)].map((_, i) => (
             <div key={i} className="bg-gray-200 animate-pulse rounded-lg h-64"></div>
           ))}
@@ -108,15 +138,15 @@ const Products = () => {
   }
 
   return (
-    <div className="container py-8 px-4 md:px-6">
-      <h1 className="text-3xl font-bold mb-8">{t('allProducts')}</h1>
+    <div className="container py-4 sm:py-8 px-4 md:px-6">
+      <h1 className="text-2xl sm:text-3xl font-bold mb-6 sm:mb-8">{t('allProducts')}</h1>
       
       {convertedProducts.length === 0 ? (
         <div className="text-center py-12">
           <p className="text-gray-500 text-lg">{t('noProductsAvailable')}</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
           {convertedProducts.map(product => (
             <ProductCard key={product.id} product={product} />
           ))}

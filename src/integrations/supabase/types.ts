@@ -372,6 +372,7 @@ export type Database = {
           payment_link: string | null
           price: number
           rating: number | null
+          size: string | null
           stock_quantity: number
           updated_at: string | null
         }
@@ -388,6 +389,7 @@ export type Database = {
           payment_link?: string | null
           price: number
           rating?: number | null
+          size?: string | null
           stock_quantity?: number
           updated_at?: string | null
         }
@@ -404,6 +406,7 @@ export type Database = {
           payment_link?: string | null
           price?: number
           rating?: number | null
+          size?: string | null
           stock_quantity?: number
           updated_at?: string | null
         }
