@@ -1,22 +1,20 @@
-# Welcome to your Lovable project
+# Welcome to WhatsShop Cart Pro
 
 ## Project info
 
-**URL**: https://lovable.dev/projects/29a23234-1e76-4083-aeaa-051692d7c69b
+**URL**: https://whats-shop-cart-pro.vercel.app
 
 ## How can I edit this code?
 
 There are several ways of editing your application.
 
-**Use Lovable**
+**Use the Project**
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/29a23234-1e76-4083-aeaa-051692d7c69b) and start prompting.
+Simply visit the project and start working.
 
-Changes made via Lovable will be committed automatically to this repo.
+Changes made will be committed automatically to this repo.
 
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in the project.
 
 The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
 
@@ -62,12 +60,12 @@ This project is built with:
 
 ## How can I deploy this project?
 
-Simply open [Lovable](https://lovable.dev/projects/29a23234-1e76-4083-aeaa-051692d7c69b) and click on Share -> Publish.
+Simply open the project and click on Share -> Publish.
 
-## Can I connect a custom domain to my Lovable project?
+## Can I connect a custom domain to my project?
 
 Yes, you can!
 
 To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+Read more here about setting up a custom domain in the documentation.
