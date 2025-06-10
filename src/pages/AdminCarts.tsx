@@ -35,7 +35,7 @@ interface CartData {
   }>;
   total: number;
   item_count: number;
-  user_email?: string;
+  user_name?: string;
 }
 
 const AdminCarts = () => {
@@ -46,11 +46,45 @@ const AdminCarts = () => {
 
   useEffect(() => {
     loadCarts();
+    
+    // Set up real-time subscription for cart updates
+    const cartSubscription = supabase
+      .channel('cart-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'user_carts'
+        },
+        () => {
+          console.log('Cart updated, reloading...');
+          loadCarts();
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'cart_items'
+        },
+        () => {
+          console.log('Cart items updated, reloading...');
+          loadCarts();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(cartSubscription);
+    };
   }, []);
 
   const loadCarts = async () => {
     try {
       setLoading(true);
+      console.log('Loading carts...');
       
       // Load carts with their items and product details
       const { data: cartsData, error } = await supabase
@@ -71,25 +105,30 @@ const AdminCarts = () => {
         .eq('status', 'active')
         .order('updated_at', { ascending: false });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error loading carts:', error);
+        throw error;
+      }
 
-      // Process the data to include totals and user emails
+      console.log('Loaded carts data:', cartsData);
+
+      // Process the data to include totals and user names
       const processedCarts = await Promise.all(
         cartsData?.map(async (cart) => {
-          let userEmail = 'Anonymous';
+          let userName = 'Anonymous';
           
           if (cart.user_id) {
-            // Try to get user email from auth metadata or profiles
+            // Try to get user name from profiles table
             const { data: profile } = await supabase
               .from('profiles')
-              .select('full_name')
+              .select('full_name, username')
               .eq('id', cart.user_id)
               .single();
               
             if (profile) {
-              userEmail = profile.full_name || 'Authenticated User';
+              userName = profile.full_name || profile.username || 'Authenticated User';
             } else {
-              userEmail = 'Authenticated User';
+              userName = 'Authenticated User';
             }
           }
 
@@ -110,11 +149,12 @@ const AdminCarts = () => {
             items,
             total,
             item_count,
-            user_email: userEmail
+            user_name: userName
           };
         }) || []
       );
 
+      console.log('Processed carts:', processedCarts);
       setCarts(processedCarts);
     } catch (error) {
       console.error('Error loading carts:', error);
@@ -134,7 +174,7 @@ const AdminCarts = () => {
       if (error) throw error;
 
       toast.success('Item removed from cart');
-      await loadCarts(); // Reload data
+      // Real-time subscription will handle the reload
     } catch (error) {
       console.error('Error removing item:', error);
       toast.error('Failed to remove item');
@@ -151,7 +191,7 @@ const AdminCarts = () => {
       if (error) throw error;
 
       toast.success('Cart cleared successfully');
-      await loadCarts(); // Reload data
+      // Real-time subscription will handle the reload
     } catch (error) {
       console.error('Error clearing cart:', error);
       toast.error('Failed to clear cart');
@@ -159,7 +199,7 @@ const AdminCarts = () => {
   };
 
   const filteredCarts = carts.filter(cart =>
-    cart.user_email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    cart.user_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     cart.session_id?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     cart.items.some(item => item.product_name.toLowerCase().includes(searchTerm.toLowerCase()))
   );
@@ -258,7 +298,7 @@ const AdminCarts = () => {
                   <TableRow key={cart.id}>
                     <TableCell>
                       <div>
-                        <div className="font-medium">{cart.user_email}</div>
+                        <div className="font-medium">{cart.user_name}</div>
                         <div className="text-sm text-muted-foreground">
                           {cart.user_id ? `ID: ${cart.user_id.slice(0, 8)}...` : `Session: ${cart.session_id?.slice(0, 8)}...`}
                         </div>
@@ -306,7 +346,7 @@ const AdminCarts = () => {
         <Card className="mt-6">
           <CardHeader>
             <div className="flex items-center justify-between">
-              <CardTitle>Cart Details - {selectedCart.user_email}</CardTitle>
+              <CardTitle>Cart Details - {selectedCart.user_name}</CardTitle>
               <Button
                 variant="outline"
                 onClick={() => setSelectedCart(null)}
