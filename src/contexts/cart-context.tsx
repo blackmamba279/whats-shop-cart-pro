@@ -102,10 +102,25 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
           .eq('cart_id', cart.id);
 
         if (cartItems) {
-          const items = cartItems.map(item => ({
-            ...item.products,
-            quantity: item.quantity
-          }));
+          const items = cartItems.map(item => {
+            const product = item.products;
+            return {
+              id: product.id,
+              name: product.name,
+              price: product.price,
+              originalPrice: product.original_price,
+              description: product.description,
+              image: product.image_url,
+              category: product.category_id || 'general',
+              inStock: product.in_stock,
+              featured: product.featured,
+              rating: product.rating,
+              stock_quantity: product.stock_quantity,
+              payment_link: product.payment_link,
+              size: product.size,
+              quantity: item.quantity
+            };
+          });
           setItems(items);
         }
       }
